@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction AI Copilots Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a202c;
+            --secondary: #2d3748;
+            --accent: #4299e1;
+            --text: #e2e8f0;
+            --highlight: #63b3ed;
+        }
+        
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .neumorphic {
+            background: var(--secondary);
+            border-radius: 12px;
+            box-shadow: 8px 8px 16px #171a23,
+                        -8px -8px 16px #2d3748;
+            transition: all 0.3s ease;
+        }
+        
+        .neumorphic:hover {
+            transform: translateY(-5px);
+            box-shadow: 12px 12px 24px #171a23,
+                       -12px -12px 24px #2d3748;
+        }
+        
+        .neumorphic-inset {
+            background: var(--secondary);
+            border-radius: 12px;
+            box-shadow: inset 5px 5px 10px #171a23,
+                        inset -5px -5px 10px #2d3748;
+        }
+        
+        .accent-text {
+            color: var(--highlight);
+        }
+        
+        .copilot-card {
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .copilot-card:hover {
+            border-left-width: 8px;
+        }
+        
+        .tool-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .copilot-card:hover .tool-icon {
+            transform: scale(1.2);
+            color: var(--highlight);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full neumorphic flex items-center justify-center mr-4">
+                    <i class="fas fa-hard-hat text-xl accent-text"></i>
+                </div>
+                <h1 class="text-3xl font-bold">
+                    <span class="accent-text">Construction</span> AI Copilots
+                </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="neumorphic-inset px-4 py-2 flex items-center">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="Find a copilot..." class="bg-transparent outline-none w-64 text-gray-300">
+                </div>
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-full neumorphic flex items-center justify-center">
+                        <i class="fas fa-user text-gray-300"></i>
+                    </div>
+                    <span class="absolute top-0 right-0 w-3 h-3 bg-green-400 rounded-full pulse"></span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Stats Overview -->
+        <section class="mb-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="neumorphic p-6 rounded-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">Active Projects</p>
+                        <h3 class="text-2xl font-bold mt-2">18</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-blue-900 bg-opacity-30">
+                        <i class="fas fa-project-diagram text-blue-400"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 3 new</span>
+                </div>
+            </div>
+            
+            <div class="neumorphic p-6 rounded-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">AI Predictions</p>
+                        <h3 class="text-2xl font-bold mt-2">92%</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-indigo-900 bg-opacity-30">
+                        <i class="fas fa-brain text-indigo-400"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 7%</span>
+                    <span class="text-gray-400">accuracy</span>
+                </div>
+            </div>
+            
+            <div class="neumorphic p-6 rounded-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">Cost Savings</p>
+                        <h3 class="text-2xl font-bold mt-2">$1.8M</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-green-900 bg-opacity-30">
+                        <i class="fas fa-coins text-green-400"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 22%</span>
+                    <span class="text-gray-400">this quarter</span>
+                </div>
+            </div>
+            
+            <div class="neumorphic p-6 rounded-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">Safety Score</p>
+                        <h3 class="text-2xl font-bold mt-2">96/100</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-teal-900 bg-opacity-30">
+                        <i class="fas fa-shield-alt text-teal-400"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 4%</span>
+                    <span class="text-gray-400">improvement</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- AI Copilots Section -->
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="neumorphic-inset w-8 h-8 rounded-md flex items-center justify-center mr-3">
+                        <i class="fas fa-robot accent-text"></i>
+                    </span>
+                    <span>Your Construction AI Copilots</span>
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Copilot 1 -->
+                    <div class="neumorphic p-6 rounded-xl copilot-card">
+                        <div class="flex items-start mb-4">
+                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
+                                <i class="fas fa-ruler-combined text-2xl tool-icon"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Design Copilot</h3>
+                                <p class="text-gray-400 text-sm">Architectural optimization</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mb-4 text-sm">AI-powered design assistant that suggests optimal layouts, materials, and structural solutions in real-time.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <span class="px-2 py-1 text-xs rounded-md bg-blue-900 bg-opacity-30 text-blue-400">BIM</span>
+                                <span class="px-2 py-1 text-xs rounded-md bg-indigo-900 bg-opacity-30 text-indigo-400">CAD</span>
+                            </div>
+                            <div class="flex items-center text-xs text-gray-400">
+                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i> Active
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Copilot 2 -->
+                    <div class="neumorphic p-6 rounded-xl copilot-card">
+                        <div class="flex items-start mb-4">
+                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
+                                <i class="fas fa-helmet-safety text-2xl tool-icon"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Safety Copilot</h3>
+                                <p class="text-gray-400 text-sm">Hazard detection & prevention</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mb-4 text-sm">24/7 computer vision monitoring of job sites to identify and alert about potential safety violations.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <span class="px-2 py-1 text-xs rounded-md bg-red-900 bg-opacity-30 text-red-400">CV</span>
+                                <span class="px-2 py-1 text-xs rounded-md bg-yellow-900 bg-opacity-30 text-yellow-400">OSHA</span>
+                            </div>
+                            <div class="flex items-center text-xs text-gray-400">
+                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i> Active
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Copilot 3 -->
+                    <div class="neumorphic p-6 rounded-xl copilot-card">
+                        <div class="flex items-start mb-4">
+                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
+                                <i class="fas fa-truck-moving text-2xl tool-icon"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Logistics Copilot</h3>
+                                <p class="text-gray-400 text-sm">Material & equipment routing</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mb-4 text-sm">Optimizes delivery schedules, inventory management, and equipment allocation across multiple sites.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <span class="px-2 py-1 text-xs rounded-md bg-purple-900 bg-opacity-30 text-purple-400">IoT</span>
+                                <span class="px-2 py-1 text-xs rounded-md bg-green-900 bg-opacity-30 text-green-400">GPS</span>
+                            </div>
+                            <div class="flex items-center text-xs text-gray-400">
+                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i> Active
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Copilot 4 -->
+                    <div class="neumorphic p-6 rounded-xl copilot-card">
+                        <div class="flex items-start mb-4">
+                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
+                                <i class="fas fa-file-invoice-dollar text-2xl tool-icon"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Cost Copilot</h3>
+                                <p class="text-gray-400 text-sm">Budget & expense forecasting</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mb-4 text-sm">Predicts project costs, identifies budget risks, and suggests cost-saving alternatives in real-time.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <span class="px-2 py-1 text-xs rounded-md bg-teal-900 bg-opacity-30 text-teal-400">ML</span>
+                                <span class="px-2 py-1 text-xs rounded-md bg-pink-900 bg-opacity-30 text-pink-400">Finance</span>
+                            </div>
+                            <div class="flex items-center text-xs text-gray-400">
+                                <i class="fas fa-circle text-yellow-400 mr-1 text-xs"></i> Learning
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- New Copilot Section -->
+                <div class="mt-8 neumorphic p-6 rounded-xl">
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-plus-circle text-blue-400 mr-2"></i>
+                        Add New Copilot
+                    </h3>
+                    <p class="text-gray-400 mb-4 text-sm">Configure a specialized AI assistant for your specific construction needs.</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
+                            <i class="fas fa-bridge text-xl mb-1"></i>
+                            <span class="text-xs">Structural</span>
+                        </button>
+                        <button class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
+                            <i class="fas fa-plug text-xl mb-1"></i>
+                            <span class="text-xs">MEP</span>
+                        </button>
+                        <button class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
+                            <i class="fas fa-leaf text-xl mb-1"></i>
+                            <span class="text-xs">Sustainability</span>
+                        </button>
+                        <button class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
+                            <i class="fas fa-users text-xl mb-1"></i>
+                            <span class="text-xs">Workforce</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div>
+                <!-- Active Sessions -->
+                <div class="neumorphic p-6 rounded-xl mb-8">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-broadcast-tower text-blue-400 mr-2"></i>
+                        Active Copilot Sessions
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-3 rounded-lg bg-blue-900 bg-opacity-10">
+                            <div class="w-10 h-10 rounded-full bg-blue-900 bg-opacity-30 flex items-center justify-center mr-3">
+                                <i class="fas fa-ruler-combined text-blue-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium">Design Copilot</p>
+                                <p class="text-xs text-gray-400">Working on Tower Project</p>
+                            </div>
+                            <div class="w-2 h-2 rounded-full bg-green-400 pulse"></div>
+                        </div>
+                        <div class="flex items-center p-3 rounded-lg bg-green-900 bg-opacity-10">
+                            <div class="w-10 h-10 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-3">
+                                <i class="fas fa-helmet-safety text-green-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium">Safety Copilot</p>
+                                <p class="text-xs text-gray-400">Monitoring 3 sites</p>
+                            </div>
+                            <div class="w-2 h-2 rounded-full bg-green-400 pulse"></div>
+                        </div>
+                        <div class="flex items-center p-3 rounded-lg bg-purple-900 bg-opacity-10">
+                            <div class="w-10 h-10 rounded-full bg-purple-900 bg-opacity-30 flex items-center justify-center mr-3">
+                                <i class="fas fa-truck-moving text-purple-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium">Logistics Copilot</p>
+                                <p class="text-xs text-gray-400">Optimizing deliveries</p>
+                            </div>
+                            <div class="w-2 h-2 rounded-full bg-green-400 pulse"></div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 neumorphic-inset py-2 rounded-md text-sm hover:bg-blue-900 hover:bg-opacity-20 transition">
+                        View All Sessions
+                    </button>
+                </div>
+                
+                <!-- Recent Alerts -->
+                <div class="neumorphic p-6 rounded-xl mb-8">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-bell text-yellow-400 mr-2"></i>
+                        Copilot Alerts
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-lg bg-yellow-900 bg-opacity-10 border-l-4 border-yellow-400">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-sm">Structural Anomaly</p>
+                                    <p class="text-xs text-gray-400">Design Copilot detected potential issue in beam #42</p>
+                                </div>
+                                <span class="text-xs text-yellow-400">2 min ago</span>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-lg bg-red-900 bg-opacity-10 border-l-4 border-red-400">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-sm">Safety Violation</p>
+                                    <p class="text-xs text-gray-400">Worker without helmet detected in Zone C</p>
+                                </div>
+                                <span class="text-xs text-red-400">15 min ago</span>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-lg bg-blue-900 bg-opacity-10 border-l-4 border-blue-400">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-sm">Delivery Delay</p>
+                                    <p class="text-xs text-gray-400">Concrete shipment delayed by 2 hours</p>
+                                </div>
+                                <span class="text-xs text-blue-400">1 hr ago</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 neumorphic-inset py-2 rounded-md text-sm hover:bg-blue-900 hover:bg-opacity-20 transition">
+                        Manage Alerts
+                    </button>
+                </div>
+                
+                <!-- Quick Connect -->
+                <div class="neumorphic p-6 rounded-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-headset text-blue-400 mr-2"></i>
+                        Connect with Copilot
+                    </h2>
+                    <div class="flex space-x-3 mb-4">
+                        <button class="flex-1 neumorphic-inset py-2 rounded-md flex items-center justify-center hover:bg-blue-900 hover:bg-opacity-20 transition">
+                            <i class="fas fa-microphone mr-2"></i>
+                            <span>Voice</span>
+                        </button>
+                        <button class="flex-1 neumorphic-inset py-2 rounded-md flex items-center justify-center hover:bg-blue-900 hover:bg-opacity-20 transition">
+                            <i class="fas fa-keyboard mr-2"></i>
+                            <span>Chat</span>
+                        </button>
+                    </div>
+                    <div class="neumorphic-inset p-4 rounded-md">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-blue-900 bg-opacity-30 flex items-center justify-center mr-3">
+                                <i class="fas fa-robot text-blue-400 text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm">Hello! I'm your Construction AI Assistant. How can I help you today?</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <span class="px-2 py-1 text-xs rounded-md bg-blue-900 bg-opacity-30">Suggest design</span>
+                                    <span class="px-2 py-1 text-xs rounded-md bg-blue-900 bg-opacity-30">Safety check</span>
+                                    <span class="px-2 py-1 text-xs rounded-md bg-blue-900 bg-opacity-30">Cost analysis</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex">
+                        <input type="text" placeholder="Type your message..." class="flex-1 neumorphic-inset px-4 py-2 rounded-l-md outline-none bg-transparent">
+                        <button class="neumorphic px-4 py-2 rounded-r-md hover:bg-blue-900 hover:bg-opacity-20 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Animation for copilot cards on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const copilotCards = document.querySelectorAll('.copilot-card');
+            
+            copilotCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+            
+            // Add any other interactive functionality here
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=Unnab/build-web4-ai-tools" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
