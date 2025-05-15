@@ -1,5 +1,5 @@
 const endpoint = "https://arasy-m9jpdzci-eastus2.openai.azure.com/";
-const apiKey = "9TyxgQgbQadMJoN1wSqZz20KJlp3HfpduWFvJvdv8p7JAv3EN6JJJQQJ99BDACHYHv6XJ3w3AAAAACOGJCog"; // API anahtarınızı buraya ekleyin
+const apiKey = "9TyxgQgbQadMJoN1wSqZz20KJlp3HfpduWFvJvdv8p7JAv3EN6JJJQQJ99BDACHYHv6XJ3w3AAAAACOGJCog";
 const modelName = "gpt-4.1-nano";
 
 async function mainStream(userMessage, onData) {
@@ -44,6 +44,8 @@ async function mainStream(userMessage, onData) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
 
+  let aiMessageDiv = null; // AI'nin yanıtını tutan div
+
   try {
     let buffer = "";
     while (true) {
@@ -65,7 +67,26 @@ async function mainStream(userMessage, onData) {
         try {
           const parsed = JSON.parse(jsonStr);
           const content = parsed?.choices?.[0]?.delta?.content;
-          if (content) onData(content);
+
+          if (content) {
+            if (!aiMessageDiv) {
+              // AI için yeni bir sohbet balonu oluştur
+              aiMessageDiv = document.createElement("div");
+              aiMessageDiv.className = "flex items-start mb-3";
+              aiMessageDiv.innerHTML = `
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" class="w-8 h-8 mr-2">
+                <div class="neumorphic-inset p-3 rounded-lg max-w-xs">
+                  <p class="text-sm text-gray-300" id="ai-message-content"></p>
+                </div>
+              `;
+
+              document.querySelector("#chat-container").appendChild(aiMessageDiv);
+            }
+
+            // Gelen kelimeyi mevcut div'e ekle
+            const aiMessageContent = aiMessageDiv.querySelector("#ai-message-content");
+            aiMessageContent.textContent += content;
+          }
         } catch (err) {
           console.warn("Data parsing error:", err, jsonStr);
         }
@@ -78,3 +99,38 @@ async function mainStream(userMessage, onData) {
     reader.releaseLock();
   }
 }
+
+// Connect UI elements
+document.addEventListener("DOMContentLoaded", () => {
+  const inputField = document.querySelector("#user-input");
+  const sendButton = document.querySelector("#send-button");
+  const chatContainer = document.querySelector("#chat-container");
+
+  function addMessageToChat(content, isUser = false) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = isUser ? "flex justify-end mb-3" : "flex items-start mb-3";
+    messageDiv.innerHTML = `
+      ${!isUser ? '<img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" class="w-8 h-8 mr-2">' : ''}
+      <div class="${isUser ? 'bg-blue-500' : 'neumorphic-inset'} p-3 rounded-lg max-w-xs">
+        <p class="text-sm ${isUser ? 'text-white' : 'text-gray-300'}">${content}</p>
+      </div>
+    `;
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll
+  }
+
+  sendButton.addEventListener("click", async () => {
+    const userMessage = inputField.value.trim();
+    if (!userMessage) return;
+
+    addMessageToChat(userMessage, true);
+    inputField.value = ""; // Clear input field
+
+    try {
+      await mainStream(userMessage, (content) => addMessageToChat(content));
+    } catch (error) {
+      console.error("Error in mainStream:", error);
+      addMessageToChat("Sorry, an error occurred. Please try again.");
+    }
+  });
+});

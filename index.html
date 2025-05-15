@@ -1,575 +1,628 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Construction AI Copilots Dashboard</title>
+    <title>Build.AI - Construction Copilots</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="gpt-41-api.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
         :root {
-            --primary: #1a202c;
-            --secondary: #2d3748;
-            --accent: #4299e1;
-            --text: #e2e8f0;
-            --highlight: #63b3ed;
+            --primary: #ff0000;
+            --secondary: #ff0000;
+            --dark: #371f2c;
+            --darker: #111827;
+            --light: #F3F4F6;
         }
-
+        
         body {
-            background-color: var(--primary);
-            color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
         }
-
+        
         .neumorphic {
-            background: var(--secondary);
+            background: var(--dark);
             border-radius: 12px;
-            box-shadow: 8px 8px 16px #171a23,
-                -8px -8px 16px #2d3748;
-            transition: all 0.3s ease;
+            box-shadow:  8px 8px 16px #0d1117,
+                        -8px -8px 16px #1a2237;
         }
-
-        .neumorphic:hover {
-            transform: translateY(-5px);
-            box-shadow: 12px 12px 24px #171a23,
-                -12px -12px 24px #2d3748;
-        }
-
+        
         .neumorphic-inset {
-            background: var(--secondary);
+            background: var(--dark);
             border-radius: 12px;
-            box-shadow: inset 5px 5px 10px #171a23,
-                inset -5px -5px 10px #2d3748;
+            box-shadow: inset 5px 5px 10px #0d1117,
+                       inset -5px -5px 10px #1a2237;
         }
-
-        .accent-text {
-            color: var(--highlight);
+        
+        .neumorphic-btn {
+            background: var(--dark);
+            border-radius: 8px;
+            box-shadow:  4px 4px 8px #0d1117,
+                        -4px -4px 8px #1a2237;
+            transition: all 0.2s ease;
         }
-
-        .copilot-card {
-            border-left: 4px solid var(--accent);
+        
+        .neumorphic-btn:hover {
+            box-shadow:  2px 2px 4px #0d1117,
+                        -2px -2px 4px #1a2237;
+        }
+        
+        .neumorphic-btn:active {
+            box-shadow: inset 2px 2px 4px #0d1117,
+                       inset -2px -2px 4px #1a2237;
+        }
+        
+        .card-hover {
             transition: all 0.3s ease;
         }
-
-        .copilot-card:hover {
-            border-left-width: 8px;
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
         }
-
-        .tool-icon {
+        
+        .sidebar {
             transition: all 0.3s ease;
         }
-
-        .copilot-card:hover .tool-icon {
-            transform: scale(1.2);
-            color: var(--highlight);
-        }
-
+        
         .gradient-bg {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
         }
-
-        .pulse {
-            animation: pulse 2s infinite;
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
-
-        @keyframes pulse {
-            0% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-
-            100% {
-                opacity: 1;
-            }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
         }
-    </style>
-    <style>
-        .chat-box {
-            max-height: 400px;
-            overflow-y: auto;
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563EB;
+        }
+        
+        /* Neumorphic Logo */
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--dark);
+            box-shadow:  8px 8px 16px #0d1117,
+                        -8px -8px 16px #1a2237;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        .logo-inner {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--dark);
+            box-shadow: inset 3px 3px 6px #0d1117,
+                       inset -3px -3px 6px #1a2237;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-icon {
+            font-size: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo-highlight {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            top: 5px;
+            right: 5px;
+            z-index: 1;
         }
     </style>
 </head>
-
-<body class="min-h-screen gradient-bg">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-10">
-            <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full neumorphic flex items-center justify-center mr-4">
-                    <i class="fas fa-hard-hat text-xl accent-text"></i>
-                </div>
-                <h1 class="text-3xl font-bold">
-                    <span class="accent-text">Construction</span> AI Copilots
-                </h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="neumorphic-inset px-4 py-2 flex items-center">
-                    <i class="fas fa-search text-gray-400 mr-2"></i>
-                    <input type="text" placeholder="Find a copilot..."
-                        class="bg-transparent outline-none w-64 text-gray-300">
-                </div>
-                <div class="relative">
-                    <div class="w-10 h-10 rounded-full neumorphic flex items-center justify-center">
-                        <i class="fas fa-user text-gray-300"></i>
+<body class="bg-darker">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar neumorphic w-64 flex flex-col">
+            <div class="p-4 gradient-bg rounded-tl-none rounded-tr-none rounded-br-lg">
+                <div class="flex items-center">
+                    <div class="logo-container">
+                        <div class="logo-inner">
+                            <div class="logo-highlight"></div>
+                            <i class="fas fa-cubes logo-icon"></i>
+                        </div>
                     </div>
-                    <span class="absolute top-0 right-0 w-3 h-3 bg-green-400 rounded-full pulse"></span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Stats Overview -->
-        <section class="mb-10 grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="neumorphic p-6 rounded-xl">
-                <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-400">Active Projects</p>
-                        <h3 class="text-2xl font-bold mt-2">18</h3>
+                        <h1 class="text-xl font-bold text-white">Build.AI Web 4.0</h1>
+                        <p class="text-xs text-white opacity-80">Planing Copilots</p>
                     </div>
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-blue-900 bg-opacity-30">
-                        <i class="fas fa-project-diagram text-blue-400"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center text-sm">
-                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 3 new</span>
                 </div>
             </div>
-
-            <div class="neumorphic p-6 rounded-xl">
-                <div class="flex justify-between items-start">
+            
+            <div class="flex-1 overflow-y-auto p-4">
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Main Menu</h3>
+                    <ul>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-blue-400">
+                                <i class="fas fa-home mr-3"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-blue-400">
+                                <i class="fas fa-hard-hat mr-3"></i>
+                                <span>Projects</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-blue-400">
+                                <i class="fas fa-robot mr-3"></i>
+                                <span>AI Copilots</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-blue-400">
+                                <i class="fas fa-chart-line mr-3"></i>
+                                <span>Analytics</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Construction Copilots</h3>
+                    <ul>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-blue-400">
+                                <i class="fas fa-drafting-compass mr-3"></i>
+                                <span>Design Architect</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-green-400">
+                                <i class="fas fa-calculator mr-3"></i>
+                                <span>Cost Optimizer</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-red-400">
+                                <i class="fas fa-shield-alt mr-3"></i>
+                                <span>Safety Inspector</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-purple-400">
+                                <i class="fas fa-calendar-alt mr-3"></i>
+                                <span>Project Scheduler</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-yellow-400">
+                                <i class="fas fa-truck mr-3"></i>
+                                <span>Logistics Manager</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-indigo-400">
+                                <i class="fas fa-file-contract mr-3"></i>
+                                <span>Regulatory Guide</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-pink-400">
+                                <i class="fas fa-users mr-3"></i>
+                                <span>Crew Coordinator</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-teal-400">
+                                <i class="fas fa-leaf mr-3"></i>
+                                <span>Green Builder</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-3 rounded-lg neumorphic-btn text-gray-300 hover:text-orange-400">
+                                <i class="fas fa-tools mr-3"></i>
+                                <span>Quality Controller</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="p-4 neumorphic-inset rounded-lg mb-4">
+                    <h4 class="text-sm font-semibold mb-2 text-blue-400">AI Assistant</h4>
+                    <p class="text-xs text-gray-400 mb-3">Need help with your construction project? Our AI assistant is here to help!</p>
+                    <button class="w-full neumorphic-btn text-white text-xs py-2 px-3 rounded-md flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
+                        <i class="fas fa-comment-dots mr-2"></i> Chat Now
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-800">
+                <div class="flex items-center p-3 rounded-lg neumorphic-btn">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-10 h-10 rounded-full mr-3">
                     <div>
-                        <p class="text-gray-400">AI Predictions</p>
-                        <h3 class="text-2xl font-bold mt-2">92%</h3>
+                        <p class="text-sm font-medium">John Smith</p>
+                        <p class="text-xs text-gray-400">Project Manager</p>
                     </div>
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-indigo-900 bg-opacity-30">
-                        <i class="fas fa-brain text-indigo-400"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center text-sm">
-                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 7%</span>
-                    <span class="text-gray-400">accuracy</span>
                 </div>
             </div>
-
-            <div class="neumorphic p-6 rounded-xl">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-400">Cost Savings</p>
-                        <h3 class="text-2xl font-bold mt-2">$1.8M</h3>
-                    </div>
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-green-900 bg-opacity-30">
-                        <i class="fas fa-coins text-green-400"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center text-sm">
-                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 22%</span>
-                    <span class="text-gray-400">this quarter</span>
-                </div>
-            </div>
-
-            <div class="neumorphic p-6 rounded-xl">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-400">Safety Score</p>
-                        <h3 class="text-2xl font-bold mt-2">96/100</h3>
-                    </div>
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-teal-900 bg-opacity-30">
-                        <i class="fas fa-shield-alt text-teal-400"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center text-sm">
-                    <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i> 4%</span>
-                    <span class="text-gray-400">improvement</span>
-                </div>
-            </div>
-        </section>
-
+        </div>
+        
         <!-- Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- AI Copilots Section -->
-            <div class="lg:col-span-2">
-                <h2 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="neumorphic-inset w-8 h-8 rounded-md flex items-center justify-center mr-3">
-                        <i class="fas fa-robot accent-text"></i>
-                    </span>
-                    <span>Your Construction AI Copilots</span>
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Copilot 1 -->
-                    <div class="neumorphic p-6 rounded-xl copilot-card">
-                        <div class="flex items-start mb-4">
-                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
-                                <i class="fas fa-ruler-combined text-2xl tool-icon"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg">Design Copilot</h3>
-                                <p class="text-gray-400 text-sm">Architectural optimization</p>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 mb-4 text-sm">AI-powered design assistant that suggests optimal layouts,
-                            materials, and structural solutions in real-time.</p>
-                        <div class="flex justify-between items-center">
-                            <div class="flex space-x-2">
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-blue-900 bg-opacity-30 text-blue-400">BIM</span>
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-indigo-900 bg-opacity-30 text-indigo-400">CAD</span>
-                            </div>
-                            <div class="flex items-center text-xs text-gray-400">
-                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i> Active
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Copilot 2 -->
-                    <div class="neumorphic p-6 rounded-xl copilot-card">
-                        <div class="flex items-start mb-4">
-                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
-                                <i class="fas fa-helmet-safety text-2xl tool-icon"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg">Safety Copilot</h3>
-                                <p class="text-gray-400 text-sm">Hazard detection & prevention</p>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 mb-4 text-sm">24/7 computer vision monitoring of job sites to identify
-                            and alert about potential safety violations.</p>
-                        <div class="flex justify-between items-center">
-                            <div class="flex space-x-2">
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-red-900 bg-opacity-30 text-red-400">CV</span>
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-yellow-900 bg-opacity-30 text-yellow-400">OSHA</span>
-                            </div>
-                            <div class="flex items-center text-xs text-gray-400">
-                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i> Active
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Copilot 3 -->
-                    <div class="neumorphic p-6 rounded-xl copilot-card">
-                        <div class="flex items-start mb-4">
-                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
-                                <i class="fas fa-truck-moving text-2xl tool-icon"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg">Logistics Copilot</h3>
-                                <p class="text-gray-400 text-sm">Material & equipment routing</p>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 mb-4 text-sm">Optimizes delivery schedules, inventory management, and
-                            equipment allocation across multiple sites.</p>
-                        <div class="flex justify-between items-center">
-                            <div class="flex space-x-2">
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-purple-900 bg-opacity-30 text-purple-400">IoT</span>
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-green-900 bg-opacity-30 text-green-400">GPS</span>
-                            </div>
-                            <div class="flex items-center text-xs text-gray-400">
-                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i> Active
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Copilot 4 -->
-                    <div class="neumorphic p-6 rounded-xl copilot-card">
-                        <div class="flex items-start mb-4">
-                            <div class="w-14 h-14 rounded-xl neumorphic-inset flex items-center justify-center mr-4">
-                                <i class="fas fa-file-invoice-dollar text-2xl tool-icon"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg">Cost Copilot</h3>
-                                <p class="text-gray-400 text-sm">Budget & expense forecasting</p>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 mb-4 text-sm">Predicts project costs, identifies budget risks, and
-                            suggests cost-saving alternatives in real-time.</p>
-                        <div class="flex justify-between items-center">
-                            <div class="flex space-x-2">
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-teal-900 bg-opacity-30 text-teal-400">ML</span>
-                                <span
-                                    class="px-2 py-1 text-xs rounded-md bg-pink-900 bg-opacity-30 text-pink-400">Finance</span>
-                            </div>
-                            <div class="flex items-center text-xs text-gray-400">
-                                <i class="fas fa-circle text-yellow-400 mr-1 text-xs"></i> Learning
-                            </div>
-                        </div>
-                    </div>
+        <div class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="neumorphic py-4 px-6 flex items-center justify-between mx-4 mt-4 rounded-xl">
+                <div class="flex items-center">
+                    <button class="mr-4 text-gray-400 hover:text-blue-400 neumorphic-btn p-2 rounded-lg">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold">Project Dashboard</h2>
                 </div>
-
-                <!-- New Copilot Section -->
-                <div class="mt-8 neumorphic p-6 rounded-xl">
-                    <h3 class="text-lg font-bold mb-4 flex items-center">
-                        <i class="fas fa-plus-circle text-blue-400 mr-2"></i>
-                        Add New Copilot
-                    </h3>
-                    <p class="text-gray-400 mb-4 text-sm">Configure a specialized AI assistant for your specific
-                        construction needs.</p>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <button
-                            class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
-                            <i class="fas fa-bridge text-xl mb-1"></i>
-                            <span class="text-xs">Structural</span>
-                        </button>
-                        <button
-                            class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
-                            <i class="fas fa-plug text-xl mb-1"></i>
-                            <span class="text-xs">MEP</span>
-                        </button>
-                        <button
-                            class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
-                            <i class="fas fa-leaf text-xl mb-1"></i>
-                            <span class="text-xs">Sustainability</span>
-                        </button>
-                        <button
-                            class="neumorphic-inset py-2 px-3 rounded-lg flex flex-col items-center hover:bg-blue-900 hover:bg-opacity-20 transition">
-                            <i class="fas fa-users text-xl mb-1"></i>
-                            <span class="text-xs">Workforce</span>
-                        </button>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search projects..." class="pl-10 pr-4 py-2 neumorphic-inset rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-300">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                     </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div>
-                <!-- Active Sessions -->
-                <div class="neumorphic p-6 rounded-xl mb-8">
-                    <h2 class="text-xl font-bold mb-4 flex items-center">
-                        <i class="fas fa-broadcast-tower text-blue-400 mr-2"></i>
-                        Active Copilot Sessions
-                    </h2>
-                    <div class="space-y-4">
-                        <div class="flex items-center p-3 rounded-lg bg-blue-900 bg-opacity-10">
-                            <div
-                                class="w-10 h-10 rounded-full bg-blue-900 bg-opacity-30 flex items-center justify-center mr-3">
-                                <i class="fas fa-ruler-combined text-blue-400"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium">Design Copilot</p>
-                                <p class="text-xs text-gray-400">Working on Tower Project</p>
-                            </div>
-                            <div class="w-2 h-2 rounded-full bg-green-400 pulse"></div>
-                        </div>
-                        <div class="flex items-center p-3 rounded-lg bg-green-900 bg-opacity-10">
-                            <div
-                                class="w-10 h-10 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-3">
-                                <i class="fas fa-helmet-safety text-green-400"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium">Safety Copilot</p>
-                                <p class="text-xs text-gray-400">Monitoring 3 sites</p>
-                            </div>
-                            <div class="w-2 h-2 rounded-full bg-green-400 pulse"></div>
-                        </div>
-                        <div class="flex items-center p-3 rounded-lg bg-purple-900 bg-opacity-10">
-                            <div
-                                class="w-10 h-10 rounded-full bg-purple-900 bg-opacity-30 flex items-center justify-center mr-3">
-                                <i class="fas fa-truck-moving text-purple-400"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium">Logistics Copilot</p>
-                                <p class="text-xs text-gray-400">Optimizing deliveries</p>
-                            </div>
-                            <div class="w-2 h-2 rounded-full bg-green-400 pulse"></div>
-                        </div>
-                    </div>
-                    <button
-                        class="w-full mt-4 neumorphic-inset py-2 rounded-md text-sm hover:bg-blue-900 hover:bg-opacity-20 transition">
-                        View All Sessions
+                    
+                    <button class="neumorphic-btn p-2 rounded-lg text-gray-400 hover:text-blue-400">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    
+                    <button class="neumorphic-btn p-2 rounded-lg text-gray-400 hover:text-blue-400">
+                        <i class="fas fa-cog"></i>
                     </button>
                 </div>
-
-                <!-- Recent Alerts -->
-                <div class="neumorphic p-6 rounded-xl mb-8">
-                    <h2 class="text-xl font-bold mb-4 flex items-center">
-                        <i class="fas fa-bell text-yellow-400 mr-2"></i>
-                        Copilot Alerts
-                    </h2>
-                    <div class="space-y-3">
-                        <div class="p-3 rounded-lg bg-yellow-900 bg-opacity-10 border-l-4 border-yellow-400">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-medium text-sm">Structural Anomaly</p>
-                                    <p class="text-xs text-gray-400">Design Copilot detected potential issue in beam #42
-                                    </p>
-                                </div>
-                                <span class="text-xs text-yellow-400">2 min ago</span>
-                            </div>
-                        </div>
-                        <div class="p-3 rounded-lg bg-red-900 bg-opacity-10 border-l-4 border-red-400">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-medium text-sm">Safety Violation</p>
-                                    <p class="text-xs text-gray-400">Worker without helmet detected in Zone C</p>
-                                </div>
-                                <span class="text-xs text-red-400">15 min ago</span>
-                            </div>
-                        </div>
-                        <div class="p-3 rounded-lg bg-blue-900 bg-opacity-10 border-l-4 border-blue-400">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-medium text-sm">Delivery Delay</p>
-                                    <p class="text-xs text-gray-400">Concrete shipment delayed by 2 hours</p>
-                                </div>
-                                <span class="text-xs text-blue-400">1 hr ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button
-                        class="w-full mt-4 neumorphic-inset py-2 rounded-md text-sm hover:bg-blue-900 hover:bg-opacity-20 transition">
-                        Manage Alerts
-                    </button>
-                </div>
-
-                <!-- Quick Connect -->
-                <div class="neumorphic p-6 rounded-xl">
-                    <h2 class="text-xl font-bold mb-4 flex items-center">
-                        <i class="fas fa-headset text-blue-400 mr-2"></i>
-                        Connect with Copilot
-                    </h2>
-                    <div id="chatBox" class="neumorphic-inset p-4 rounded-md chat-box">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 rounded-full bg-blue-900 bg-opacity-30 flex items-center justify-center mr-3">
-                                <i class="fas fa-robot text-blue-400 text-sm"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm">Hello! I'm your Construction AI Assistant. How can I help you today?
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex">
-                        <input id="userInput" type="text" placeholder="Type your message..."
-                            class="flex-1 neumorphic-inset px-4 py-2 rounded-l-md outline-none bg-transparent">
-                        <button id="sendButton"
-                            class="neumorphic px-4 py-2 rounded-r-md hover:bg-blue-900 hover:bg-opacity-20 transition">
-                            <i class="fas fa-paper-plane"></i>
+            </header>
+            
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Welcome Banner -->
+                <div class="neumorphic rounded-xl p-6 mb-6 relative overflow-hidden gradient-bg">
+                    <div class="relative z-10">
+                        <h1 class="text-2xl font-bold mb-2 text-white">Welcome to Build.AI Web 4.0!</h1>
+                        <p class="mb-4 max-w-lg text-blue-100">Your co-pilot platform for your intelligent Planning with 9 expert AI assistants.</p>
+                        <button class="neumorphic-btn bg-white text-blue-600 hover:bg-gray-100 font-medium py-2 px-4 rounded-md">
+                            Explore 
                         </button>
                     </div>
+                    <div class="absolute right-6 bottom-0 floating">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2779/2779778.png" class="h-32" alt="Construction AI">
+                    </div>
                 </div>
-
-                <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        const chatBox = document.getElementById("chatBox");
-                        const userInput = document.getElementById("userInput");
-                        const sendButton = document.getElementById("sendButton");
-
-                        // Function to append chat messages
-                        function appendMessage(role, message, isStreaming = false) {
-                            let messageDiv = document.querySelector(`.message-${role}-streaming`);
-                            if (isStreaming && messageDiv) {
-                                // Update the existing message for streaming
-                                const textP = messageDiv.querySelector("p");
-                                textP.textContent = message;
-                                return;
-                            }
-
-                            // Create a new message element
-                            messageDiv = document.createElement("div");
-                            messageDiv.classList.add("flex", "items-start", "mt-4", `message-${role}-streaming`);
-
-                            const iconDiv = document.createElement("div");
-                            iconDiv.classList.add("w-8", "h-8", "rounded-full", "flex", "items-center", "justify-center", "mr-3");
-
-                            const contentDiv = document.createElement("div");
-                            contentDiv.classList.add("flex-1");
-
-                            const textP = document.createElement("p");
-                            textP.classList.add("text-sm");
-                            textP.textContent = message;
-
-                            if (role === "user") {
-                                iconDiv.classList.add("bg-gray-900", "bg-opacity-30");
-                                iconDiv.innerHTML = '<i class="fas fa-user text-gray-400 text-sm"></i>';
-                            } else {
-                                iconDiv.classList.add("bg-blue-900", "bg-opacity-30");
-                                iconDiv.innerHTML = '<i class="fas fa-robot text-blue-400 text-sm"></i>';
-                            }
-
-                            contentDiv.appendChild(textP);
-                            messageDiv.appendChild(iconDiv);
-                            messageDiv.appendChild(contentDiv);
-                            chatBox.appendChild(messageDiv);
-
-                            // Scroll to the bottom of the chatBox
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                        }
-
-                        // Send user message and get AI response
-                        async function handleSendMessage() {
-                            const userMessage = userInput.value.trim();
-                            if (!userMessage) return;
-
-                            // Append user's message to chat
-                            appendMessage("user", userMessage);
-                            userInput.value = "";
-
-                            // Fetch AI response
-                            let aiResponseBuffer = ""; // Buffer for AI response
-                            appendMessage("assistant", "", true); // Create a streaming message area
-                            try {
-                                await mainStream(userMessage, (content) => {
-                                    aiResponseBuffer += content; // Append incoming content to the buffer
-                                    appendMessage("assistant", aiResponseBuffer, true); // Update the streaming message
-                                });
-                            } catch (error) {
-                                appendMessage("assistant", "Sorry, I encountered an error. Please try again.");
-                                console.error("Error:", error);
-                            } finally {
-                                // Remove the streaming class after message is complete
-                                const streamingMessage = document.querySelector(".message-assistant-streaming");
-                                if (streamingMessage) {
-                                    streamingMessage.classList.remove("message-assistant-streaming");
-                                }
-                            }
-                        }
-
-                        // Event listeners
-                        sendButton.addEventListener("click", handleSendMessage);
-                        userInput.addEventListener("keypress", (e) => {
-                            if (e.key === "Enter") {
-                                handleSendMessage();
-                            }
-                        });
-                    });
-                </script>
-                <script>
-                    // Animation for copilot cards on page load
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const copilotCards = document.querySelectorAll('.copilot-card');
-
-                        copilotCards.forEach((card, index) => {
-                            card.style.opacity = '0';
-                            card.style.transform = 'translateY(20px)';
-
-                            setTimeout(() => {
-                                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, index * 150);
-                        });
-
-                        // Add any other interactive functionality here
-                    });
-                </script>
-                <p
-                    style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">
-                    Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo"
-                        style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a
-                        href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;"
-                        target="_blank">DeepSite</a> - 🧬 <a
-                        href="https://enzostvs-deepsite.hf.space?remix=Unnab/build-web4-ai-tools"
-                        style="color: #fff;text-decoration: underline;" target="_blank">Remix</a></p>
-</body>
-
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="neumorphic rounded-lg p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">Active Projects</p>
+                                <h3 class="text-2xl font-bold mt-1 text-white">54</h3>
+                            </div>
+                            <div class="neumorphic-inset p-3 rounded-full">
+                                <i class="fas fa-hard-hat text-blue-400"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-green-400 mt-2"><i class="fas fa-arrow-up mr-1"></i> 9 new this week</p>
+                    </div>
+                    
+                    <div class="neumorphic rounded-lg p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">AI Recommendations</p>
+                                <h3 class="text-2xl font-bold mt-1 text-white">300</h3>
+                            </div>
+                            <div class="neumorphic-inset p-3 rounded-full">
+                                <i class="fas fa-robot text-green-400"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-green-400 mt-2"><i class="fas fa-arrow-up mr-1"></i> 50% from last week</p>
+                    </div>
+                    
+                    <div class="neumorphic rounded-lg p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">Savings</p>
+                                <h3 class="text-2xl font-bold mt-1 text-white">$24k</h3>
+                            </div>
+                            <div class="neumorphic-inset p-3 rounded-full">
+                                <i class="fas fa-dollar-sign text-yellow-400"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-green-400 mt-2"><i class="fas fa-arrow-up mr-1"></i> 5% efficiency gain</p>
+                    </div>
+                    
+                    <div class="neumorphic rounded-lg p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">Safety Days</p>
+                                <h3 class="text-2xl font-bold mt-1 text-white">428</h3>
+                            </div>
+                            <div class="neumorphic-inset p-3 rounded-full">
+                                <i class="fas fa-shield-alt text-red-400"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-green-400 mt-2">No incidents this month</p>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity and AI Copilot -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="lg:col-span-2">
+                        <div class="neumorphic rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold">Project Updates</h3>
+                                <button class="text-sm text-blue-400 hover:text-blue-300">View All</button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-start p-3 neumorphic-inset rounded-lg">
+                                    <div class="neumorphic-inset p-2 rounded-full mr-3">
+                                        <i class="fas fa-hard-hat text-blue-400 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-white">The buffet plan in the botanical park 1. week</p>
+                                        <p class="text-xs text-gray-400">Structural work completed ahead of schedule</p>
+                                        <p class="text-xs text-gray-500 mt-1">Updated 2 hours ago</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-3 neumorphic-inset rounded-lg">
+                                    <div class="neumorphic-inset p-2 rounded-full mr-3">
+                                        <i class="fas fa-robot text-green-400 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-white">AI Recommendation</p>
+                                        <p class="text-xs text-gray-400">Suggested alternative materials for Riverside project saving $42K</p>
+                                        <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-3 neumorphic-inset rounded-lg">
+                                    <div class="neumorphic-inset p-2 rounded-full mr-3">
+                                        <i class="fas fa-calendar-exclamation text-purple-400 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-white">Schedule Alert</p>
+                                        <p class="text-xs text-gray-400">Permit delays detected for Harbor View project</p>
+                                        <p class="text-xs text-gray-500 mt-1">1 day ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="neumorphic rounded-lg p-6 h-full">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold">Design Architect</h3>
+                                <span class="neumorphic-inset text-green-400 text-xs px-2 py-1 rounded-full">Active</span>
+                            </div>
+                            
+                            <div id="chat-container" class="neumorphic-inset rounded-lg p-4 mb-4" style="max-height: 400px; overflow-y: auto;">
+                                <div class="flex items-start mb-3">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" class="w-8 h-8 mr-2">
+                                    <div class="neumorphic-inset p-3 rounded-lg max-w-xs">
+                                        <p class="text-sm text-gray-300">Hi User! I'm your Planing Architect. How can I help with your projects today?</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex">
+                                <input id="user-input" type="text" placeholder="Ask about design..." class="flex-1 neumorphic-inset rounded-l-lg px-4 py-2 text-sm focus:outline-none text-gray-300">
+                                <button id="send-button" class="neumorphic-btn bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-r-lg">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+                
+                <!-- Project Distribution -->
+                <div class="neumorphic rounded-lg p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold">Project Types</h3>
+                        <div class="flex space-x-2">
+                            <button class="text-xs neumorphic-btn px-3 py-1 rounded-md">By Sector</button>
+                            <button class="text-xs bg-blue-500 text-white px-3 py-1 rounded-md">By Stage</button>
+                            <button class="text-xs neumorphic-btn px-3 py-1 rounded-md">By Value</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-9 gap-2 h-4 mb-4">
+                        <div class="bg-blue-500 rounded-l-full" title="Residential (28%)"></div>
+                        <div class="bg-green-500" title="Commercial (22%)"></div>
+                        <div class="bg-yellow-500" title="Industrial (18%)"></div>
+                        <div class="bg-purple-500" title="Infrastructure (12%)"></div>
+                        <div class="bg-red-500" title="Institutional (8%)"></div>
+                        <div class="bg-indigo-500" title="Healthcare (5%)"></div>
+                        <div class="bg-pink-500" title="Hospitality (4%)"></div>
+                        <div class="bg-teal-500" title="Retail (2%)"></div>
+                        <div class="bg-orange-500 rounded-r-full" title="Other (1%)"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-4">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Residential</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Commercial</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Industrial</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Infrastructure</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Institutional</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-indigo-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Healthcare</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-pink-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Hospitality</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-teal-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Retail</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+                            <span class="text-xs">Other</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Active Projects -->
+                <div class="neumorphic rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold">Active Projects</h3>
+                        <button class="text-sm text-blue-400 hover:text-blue-300">View All</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="neumorphic p-4 flex card-hover rounded-lg">
+                            <div class="w-16 h-16 neumorphic-inset rounded-lg mr-4 flex items-center justify-center">
+                                <i class="fas fa-building text-blue-400 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-white">Downtown Tower</h4>
+                                <p class="text-xs text-gray-400 mb-2">Commercial • $42M</p>
+                                <div class="w-full bg-gray-700 rounded-full h-1.5 mb-2">
+                                    <div class="bg-blue-500 h-1.5 rounded-full" style="width: 65%"></div>
+                                </div>
+                                <p class="text-xs text-gray-400">65% complete • Due Dec 2023</p>
+                            </div>
+                        </div>
+                        
+                        <div class="neumorphic p-4 flex card-hover rounded-lg">
+                            <div class="w-16 h-16 neumorphic-inset rounded-lg mr-4 flex items-center justify-center">
+                                <i class="fas fa-home text-green-400 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-white">Riverside Condos</h4>
+                                <p class="text-xs text-gray-400 mb-2">Residential • $28M</p>
+                                <div class="w-full bg-gray-700 rounded-full h-1.5 mb-2">
+                                    <div class="bg-green-500 h-1.5 rounded-full" style="width: 42%"></div>
+                                </div>
+                                <p class="text-xs text-gray-400">42% complete • Due May 2024</p>
+                            </div>
+                        </div>
+                        
+                        <div class="neumorphic p-4 flex card-hover rounded-lg">
+                            <div class="w-16 h-16 neumorphic-inset rounded-lg mr-4 flex items-center justify-center">
+                                <i class="fas fa-hospital text-red-400 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-white">City Medical Center</h4>
+                                <p class="text-xs text-gray-400 mb-2">Healthcare • $75M</p>
+                                <div class="w-full bg-gray-700 rounded-full h-1.5 mb-2">
+                                    <div class="bg-red-500 h-1.5 rounded-full" style="width: 28%"></div>
+                                </div>
+                                <p class="text-xs text-gray-400">28% complete • Due Nov 2024</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="gpt-41-api.js"></script>
+    <script>
+        // Simple interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar on mobile
+            const sidebarToggle = document.querySelector('header button');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('hidden');
+                    sidebar.classList.toggle('block');
+                });
+            }
+            
+            // Add animation to stats cards on hover
+            const statsCards = document.querySelectorAll('.card-hover');
+            statsCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+            // Simple AI chat interaction
+            const chatInput = document.querySelector('.neumorphic-inset input');
+            const chatSendBtn = document.querySelector('.neumorphic-inset + button');
+            
+            if (chatSendBtn) {
+                chatSendBtn.addEventListener('click', function() {
+                    if (chatInput.value.trim() !== '') {
+                        // In a real app, this would send to an API
+                        alert(`Your design question "${chatInput.value}" would be sent to the AI in a real implementation.`);
+                        chatInput.value = '';
+                    }
+                });
+            }
+            
+            // Neumorphic button effects
+            const neumorphicBtns = document.querySelectorAll('.neumorphic-btn');
+            neumorphicBtns.forEach(btn => {
+                btn.addEventListener('mousedown', function() {
+                    this.style.boxShadow = 'inset 2px 2px 4px #0d1117, inset -2px -2px 4px #1a2237';
+                });
+                
+                btn.addEventListener('mouseup', function() {
+                    this.style.boxShadow = '4px 4px 8px #0d1117, -4px -4px 8px #1a2237';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '4px 4px 8px #0d1117, -4px -4px 8px #1a2237';
+                });
+            });
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Build.AI <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >Web 4.0</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=Unnab/build-ai-dashboard" style="color: #fff;text-decoration: underline;" target="_blank" >Copilot</a></p></body>
 </html>

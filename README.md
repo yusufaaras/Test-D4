@@ -1,8 +1,8 @@
 ---
-title: build-web4-ai-tools
+title: build-ai-dashboard
 emoji: 🐳
 colorFrom: green
-colorTo: yellow
+colorTo: gray
 sdk: static
 pinned: false
 tags:
