@@ -62,11 +62,10 @@ function cosineSimilarity(vecA, vecB) {
 }
 
 // AI’ya soruyu gönderme, gömülü en yakın metni de ekleyerek
-async function askOpenAIWithEmbedding(question, closestText) {
+async function askOpenAIWithEmbedding(question, closestText, onChunkReceived) {
     const apiKey = "33UVBdsOXYuThfNXPD80IpUjjxRh6aw2CzDRi5U988ySHG5lWU1OJQQJ99BDACHYHv6XJ3w3AAAAACOGM9JC";
     const endpoint = "https://au-m9vezg5i-eastus2.services.ai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2023-05-15";
 
-    // Prepare messages for the OpenAI API, including conversation history
     const apiMessages = [
         { role: "system", content: "You are a helpful assistant for construction data. The current year is 2025. Please provide detailed answers, using Markdown for clear headings, bullet points, and tables. For tables, use standard Markdown table syntax. Separate major sections with '---'. Keep responses concise but informative for a chat context." },
         ...conversationHistory.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'assistant', content: msg.text })),
@@ -90,6 +89,7 @@ async function askOpenAIWithEmbedding(question, closestText) {
             top_p: 1,
             frequency_penalty: 0,
             presence_penalty: 0,
+            stream: true, // BU ÖNEMLİ! Akış için True olarak ayarla
         }),
     });
 
@@ -97,8 +97,40 @@ async function askOpenAIWithEmbedding(question, closestText) {
         throw new Error("API request failed with status " + response.status);
     }
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let fullResponse = "";
+    let buffer = "";
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Her bir 'data:' satırını işle
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Son satırı (tamamlanmamış olabilir) tampona geri koy
+
+        for (const line of lines) {
+            if (line.startsWith('data: ')) {
+                const jsonStr = line.substring(6);
+                if (jsonStr === '[DONE]') {
+                    reader.cancel(); // Akışı sonlandır
+                    return fullResponse;
+                }
+                try {
+                    const parsed = JSON.parse(jsonStr);
+                    const content = parsed.choices[0]?.delta?.content || "";
+                    fullResponse += content;
+                    onChunkReceived(content); // Her gelen parçayı UI'a gönder
+                } catch (e) {
+                    console.warn("JSON parsing error:", e, "on line:", jsonStr);
+                }
+            }
+        }
+    }
+    return fullResponse; // Tamamlanmış yanıtı döndür (ancak stream ile zaten UI güncelleniyor)
 }
 
 // Kullanıcı sorgusu ve web sonuçlarını embedding ile en iyi eşleşmeyi bulup AI’a gönderme
@@ -272,6 +304,7 @@ function displayMessage(sender, textContent) {
 }
 
 // Ana arama ve sohbet işleme fonksiyonu
+// Ana arama ve sohbet işleme fonksiyonu
 async function handleSearch(query) {
     if (!query) return;
 
@@ -280,30 +313,60 @@ async function handleSearch(query) {
     aiSuggestions.classList.remove("hidden");
     searchQuerySpan.textContent = query;
 
-    // Add user message to conversation history and display
+    // Kullanıcı mesajını ekle
     conversationHistory.push({ sender: 'user', text: query });
     displayMessage('user', query);
 
-    // Show a loading indicator for AI response
-    displayMessage('ai', '<i class="fas fa-spinner fa-spin"></i> Thinking...');
+    // AI yanıtı için boş bir bubble oluştur ve loading spinner ekle
+    const aiMessageDiv = document.createElement('div');
+    aiMessageDiv.classList.add('message-container');
+    const aiMessageBubble = document.createElement('div');
+    aiMessageBubble.classList.add('ai-message', 'self-start');
+    aiMessageBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
+    aiMessageDiv.appendChild(aiMessageBubble);
+    chatMessages.appendChild(aiMessageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+
+    let currentAiResponseContent = ""; // AI'dan gelen akış içeriğini biriktir
 
     try {
-        // Perform web search only if it's the initial query or if needed
         let webResults = currentWebResults;
-        if (conversationHistory.length === 1 || query.toLowerCase().includes("search web for")) { // Simple heuristic
+        if (conversationHistory.length === 1 || query.toLowerCase().includes("search web for")) {
             webResults = await searchApi(query);
-            currentWebResults = webResults; // Store for subsequent use
+            currentWebResults = webResults;
         }
 
-        const answer = await processQueryWithEmbedding(query, webResults);
+        // Embeddingleri al ve en yakın metni bul (bu kısım aynı kalır)
+        const queryEmbedding = await getEmbedding(query);
+        const embeddings = await Promise.all(
+            webResults.map(item => getEmbedding(item.snippet))
+        );
+        let maxSim = -1;
+        let maxIndex = -1;
+        embeddings.forEach((embedding, idx) => {
+            const sim = cosineSimilarity(queryEmbedding, embedding);
+            if (sim > maxSim) {
+                maxSim = sim;
+                maxIndex = idx;
+            }
+        });
+        const closestText = maxIndex !== -1 ? webResults[maxIndex].snippet : "No relevant web information found.";
 
-        // Remove loading indicator and display AI answer
-        chatMessages.lastChild.remove(); // Remove the loading spinner
-        const formattedAiAnswer = formatAiResponse(answer);
-        conversationHistory.push({ sender: 'ai', text: answer }); // Store raw text for AI model
-        displayMessage('ai', formattedAiAnswer);
+        // AI'dan cevabı akış olarak al ve UI'ı güncelle
+        // loading spinner'ı kaldırın
+        aiMessageBubble.innerHTML = ''; 
 
-        // Display web results in the suggestions section
+        const fullAnswer = await askOpenAIWithEmbedding(query, closestText, (chunk) => {
+            // Her gelen parçayı UI'a ekle
+            currentAiResponseContent += chunk;
+            aiMessageBubble.innerHTML = formatAiResponse(currentAiResponseContent); // Formatlayarak göster
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Her yeni parçada scroll
+        });
+        
+        // Akış tamamlandıktan sonra conversationHistory'ye ekle
+        conversationHistory.push({ sender: 'ai', text: fullAnswer });
+
+        // Web sonuçlarını göster
         if (currentWebResults.length > 0) {
             suggestionsContent.innerHTML =
                 `<p class="text-sm font-semibold text-gray-300 mb-2">Relevant Web Results:</p><ul class="list-disc ml-4 text-sm space-y-1">` +
@@ -317,12 +380,13 @@ async function handleSearch(query) {
         } else {
             suggestionsContent.innerHTML = `<p class="text-sm">No new web suggestions available for this query.</p>`;
         }
+
     } catch (error) {
-        chatMessages.lastChild.remove(); // Remove the loading spinner
-        displayMessage('ai', `<p style="color:red">Error: ${error.message}</p>`);
+        // Hata durumunda loading spinner'ı kaldır ve hata mesajını göster
+        aiMessageBubble.innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
         suggestionsContent.innerHTML = `<p class="text-sm" style="color:red">Error fetching web results or AI response.</p>`;
     } finally {
-        chatInput.value = ""; // Clear chat input after sending
+        chatInput.value = ""; // Mesaj gönderildikten sonra input'u temizle
     }
 }
 
