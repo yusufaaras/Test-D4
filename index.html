@@ -62,63 +62,98 @@
         .darkest-card {
             background: rgba(5, 15, 30, 0.9);
         }
+
         /* Table styling within resultsContainer */
         #resultsContainer table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem; /* Azaltıldı */
             border-radius: 0.5rem;
-            overflow: hidden; /* Ensures rounded corners apply to content */
+            overflow: hidden;
+            font-size: 0.85em; /* Orijinalden daha küçük */
         }
 
         #resultsContainer th,
         #resultsContainer td {
-            padding: 0.75rem 1rem;
-            border: 1px solid rgba(56, 182, 255, 0.1); /* Lighter border for table cells */
+            padding: 0.4rem 0.75rem; /* Orijinal 0.75rem 1rem yerine */
+            border: 1px solid rgba(56, 182, 255, 0.1);
             text-align: left;
         }
 
         #resultsContainer th {
-            background-color: rgba(56, 182, 255, 0.15); /* Slightly darker header background */
-            color: #93c5fd; /* Light blue color for headers */
+            background-color: rgba(56, 182, 255, 0.15);
+            color: #93c5fd;
             font-weight: 600;
         }
 
         #resultsContainer tr:nth-child(even) {
-            background-color: rgba(0, 0, 0, 0.1); /* Subtle stripe for readability */
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* **YENİ EKLENEN/DÜZENLENEN:** Yazı boyutları küçültüldü */
+        #resultsContainer p {
+            margin-bottom: 0.75rem; /* Azaltıldı */
+            line-height: 1.5; /* Biraz sıkıştırıldı */
+            font-size: 0.9em; /* Genel paragraf metni küçültüldü */
         }
         #resultsContainer ul {
-            list-style-type: disc; /* Ensure disc for bullet points */
-            margin-left: 1.5rem; /* Indent for bullet points */
-            margin-bottom: 1rem;
+            list-style-type: disc;
+            margin-left: 1.25rem; /* Girinti azaltıldı */
+            margin-bottom: 0.75rem; /* Azaltıldı */
+            font-size: 0.9em; /* Liste metni küçültüldü */
         }
         #resultsContainer li {
-            margin-bottom: 0.5rem;
-        }
-        #resultsContainer p {
-            margin-bottom: 1rem;
-            line-height: 1.6;
+            margin-bottom: 0.3rem; /* Liste öğeleri arası boşluk azaltıldı */
         }
         #resultsContainer h2 {
-            font-size: 1.875rem; /* Tailwind text-3xl */
-            font-weight: 700; /* Tailwind font-bold */
-            color: #60a5fa; /* Tailwind text-blue-400 */
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
+            font-size: 1.5rem; /* Tailwind text-3xl (1.875rem) yerine text-2xl (1.5rem) */
+            font-weight: 700;
+            color: #60a5fa;
+            margin-top: 1.25rem; /* Azaltıldı */
+            margin-bottom: 0.75rem; /* Azaltıldı */
         }
         #resultsContainer h3 {
-            font-size: 1.5rem; /* Tailwind text-2xl */
-            font-weight: 600; /* Tailwind font-semibold */
-            color: #93c5fd; /* Tailwind text-blue-300 */
-            margin-top: 1rem;
-            margin-bottom: 0.75rem;
+            font-size: 1.25rem; /* Tailwind text-2xl (1.5rem) yerine text-xl (1.25rem) */
+            font-weight: 600;
+            color: #93c5fd;
+            margin-top: 0.75rem; /* Azaltıldı */
+            margin-bottom: 0.5rem; /* Azaltıldı */
         }
         #resultsContainer a {
-            color: #60a5fa; /* Tailwind text-blue-400 */
+            color: #60a5fa;
             text-decoration: underline;
         }
         #resultsContainer a:hover {
-            color: #3b82f6; /* A slightly darker blue on hover */
+            color: #3b82f6;
+        }
+
+        /* Chat specific styles */
+        .ai-message {
+            background-color: rgba(16, 30, 60, 0.9); /* Darker blue */
+            border: 1px solid rgba(56, 182, 255, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            max-width: 85%;
+            align-self: flex-start; /* Left aligned */
+            color: #e2e8f0; /* text-gray-200 */
+        }
+
+        .user-message {
+            background-color: rgba(45, 20, 80, 0.9); /* Darker purple */
+            border: 1px solid rgba(168, 85, 247, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            max-width: 85%;
+            align-self: flex-end; /* Right aligned */
+            color: #e2e8f0; /* text-gray-200 */
+        }
+
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
         }
     </style>
 </head>
@@ -182,10 +217,22 @@
                 </ul>
             </div>
 
-            <div id="searchResults" class="hidden darker-card rounded-xl shadow-lg p-6 max-h-[50vh] overflow-y-auto custom-scrollbar thin-border-blue">
+            <div id="searchResults" class="hidden darker-card rounded-xl shadow-lg p-6 max-h-[60vh] flex flex-col justify-between thin-border-blue">
                 <h3 class="mb-4 text-xl font-semibold text-gray-300">Search Results for "<span id="searchQuery" class="text-blue-400">query</span>":</h3>
-                <div id="resultsContainer" class="space-y-4">
+                <div id="chatMessages" class="flex-grow overflow-y-auto custom-scrollbar p-2 mb-4 space-y-4">
                     </div>
+
+                <div id="chatInputContainer" class="flex items-center gap-2 thin-border-blue rounded-lg p-1 bg-gray-800">
+                    <input
+                        type="text"
+                        id="chatInput"
+                        placeholder="Type your message here..."
+                        class="flex-grow bg-transparent outline-none py-3 px-4 rounded-md placeholder-gray-500 text-gray-200 text-base"
+                    />
+                    <button id="sendMessageButton" class="p-3 rounded-lg bg-blue-600 hover:bg-blue-700 transition text-white">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
             </div>
 
             <div id="aiSuggestions" class="hidden darkest-card rounded-xl p-4 mt-4 thin-border-purple">
@@ -193,9 +240,9 @@
                     <div class="w-8 h-8 rounded-full bg-purple-900/20 flex items-center justify-center thin-border-purple">
                         <i class="fas fa-robot text-purple-400"></i>
                     </div>
-                    <span class="font-medium text-purple-400">AI Suggestions</span>
+                    <span class="font-medium text-purple-400">AI Suggestions (Based on Web Search)</span>
                 </div>
-                <div id="suggestionsContent" class="text-gray-400">
+                <div id="suggestionsContent" class="text-gray-400 text-sm">
                     </div>
             </div>
         </div>
