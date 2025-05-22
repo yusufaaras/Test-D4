@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build.web4 - AI Construction Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom ultra-thin borders */
+        .thin-border {
+            border-width: 1px;
+        }
+        .thin-border-blue {
+            border: 1px solid rgba(56, 182, 255, 0.2);
+        }
+        .thin-border-white {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .thin-border-purple {
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(56, 182, 255, 0.3);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 182, 255, 0.5);
+        }
+
+        /* Animation for search results */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Dark gradient background */
+        .dark-gradient-bg {
+            background: linear-gradient(135deg, #0a1a3a 0%, #050d21 100%);
+        }
+
+        /* Darker card backgrounds */
+        .dark-card {
+            background: rgba(15, 25, 50, 0.7);
+        }
+        .darker-card {
+            background: rgba(10, 20, 40, 0.8);
+        }
+        .darkest-card {
+            background: rgba(5, 15, 30, 0.9);
+        }
+        /* Table styling within resultsContainer */
+        #resultsContainer table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+        }
+
+        #resultsContainer th,
+        #resultsContainer td {
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(56, 182, 255, 0.1); /* Lighter border for table cells */
+            text-align: left;
+        }
+
+        #resultsContainer th {
+            background-color: rgba(56, 182, 255, 0.15); /* Slightly darker header background */
+            color: #93c5fd; /* Light blue color for headers */
+            font-weight: 600;
+        }
+
+        #resultsContainer tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.1); /* Subtle stripe for readability */
+        }
+        #resultsContainer ul {
+            list-style-type: disc; /* Ensure disc for bullet points */
+            margin-left: 1.5rem; /* Indent for bullet points */
+            margin-bottom: 1rem;
+        }
+        #resultsContainer li {
+            margin-bottom: 0.5rem;
+        }
+        #resultsContainer p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        #resultsContainer h2 {
+            font-size: 1.875rem; /* Tailwind text-3xl */
+            font-weight: 700; /* Tailwind font-bold */
+            color: #60a5fa; /* Tailwind text-blue-400 */
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        #resultsContainer h3 {
+            font-size: 1.5rem; /* Tailwind text-2xl */
+            font-weight: 600; /* Tailwind font-semibold */
+            color: #93c5fd; /* Tailwind text-blue-300 */
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        #resultsContainer a {
+            color: #60a5fa; /* Tailwind text-blue-400 */
+            text-decoration: underline;
+        }
+        #resultsContainer a:hover {
+            color: #3b82f6; /* A slightly darker blue on hover */
+        }
+    </style>
+</head>
+<body class="dark-gradient-bg min-h-screen text-gray-200 font-sans">
+    <div class="container mx-auto px-4 py-10 flex flex-col items-center">
+        <header class="mb-12 text-center select-none thin-border-white rounded-lg p-6 dark-card backdrop-blur-sm">
+            <h1 class="text-5xl font-extrabold tracking-wide mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                Build.web4
+            </h1>
+            <p class="text-lg font-light text-gray-400 max-w-xl mx-auto">
+                Your smart gateway to construction data.
+            </p>
+        </header>
+
+        <div class="w-full max-w-5xl flex flex-col gap-8">
+            <div class="flex items-center darker-card rounded-xl p-1 shadow-2xl backdrop-blur-md gap-4 thin-border-blue">
+                <div class="flex items-center pl-4 text-blue-400">
+                    <i class="fas fa-search"></i>
+                </div>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search projects, BIM models, materials, suppliers..."
+                    class="flex-grow bg-transparent outline-none py-4 px-2 rounded-md placeholder-gray-500 text-gray-200 text-lg"
+                    autofocus
+                />
+                <div class="flex gap-2 pr-2">
+                    <button class="p-2 rounded-full hover:bg-blue-500/10 thin-border-blue">
+                        <i class="fas fa-microphone text-blue-400"></i>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-blue-500/10 thin-border-blue">
+                        <i class="fas fa-camera text-blue-400"></i>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-blue-500/10 thin-border-blue">
+                        <i class="fas fa-sliders-h text-blue-400"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="popularQueries" class="text-gray-400 thin-border-purple rounded-xl p-6 darker-card">
+                <h3 class="mb-4 text-xl font-semibold text-gray-300">Need help? Try our popular queries:</h3>
+                <ul class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
+                        Find ongoing construction projects
+                    </li>
+                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
+                        Search BIM & CAD models
+                    </li>
+                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
+                        Material suppliers near me
+                    </li>
+                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
+                        Latest cost estimates
+                    </li>
+                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
+                        Real-time site management data
+                    </li>
+                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
+                        Project timelines and deadlines
+                    </li>
+                </ul>
+            </div>
+
+            <div id="searchResults" class="hidden darker-card rounded-xl shadow-lg p-6 max-h-[50vh] overflow-y-auto custom-scrollbar thin-border-blue">
+                <h3 class="mb-4 text-xl font-semibold text-gray-300">Search Results for "<span id="searchQuery" class="text-blue-400">query</span>":</h3>
+                <div id="resultsContainer" class="space-y-4">
+                    </div>
+            </div>
+
+            <div id="aiSuggestions" class="hidden darkest-card rounded-xl p-4 mt-4 thin-border-purple">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 rounded-full bg-purple-900/20 flex items-center justify-center thin-border-purple">
+                        <i class="fas fa-robot text-purple-400"></i>
+                    </div>
+                    <span class="font-medium text-purple-400">AI Suggestions</span>
+                </div>
+                <div id="suggestionsContent" class="text-gray-400">
+                    </div>
+            </div>
+        </div>
+
+        <footer class="mt-auto w-full max-w-5xl pt-12 pb-6 text-center text-sm text-gray-500 select-none">
+            <h4 class="mb-6 text-lg font-semibold text-gray-400">Sponsored by Industry Leaders</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 cursor-default">
+                <div class="rounded-xl darkest-card p-6 shadow-lg thin-border-blue hover:border-blue-400/30 transition">
+                    <h5 class="text-xl font-bold text-gray-300 mb-2">BuildTech Solutions</h5>
+                    <p class="text-gray-400 text-sm">Innovative building automation systems.</p>
+                </div>
+                <div class="rounded-xl darkest-card p-6 shadow-lg thin-border-blue hover:border-blue-400/30 transition">
+                    <h5 class="text-xl font-bold text-gray-300 mb-2">SteelWorks Supply</h5>
+                    <p class="text-gray-400 text-sm">Reliable steel and metal providers.</p>
+                </div>
+                <div class="rounded-xl darkest-card p-6 shadow-lg thin-border-blue hover:border-blue-400/30 transition">
+                    <h5 class="text-xl font-bold text-gray-300 mb-2">EcoMaterial Inc</h5>
+                    <p class="text-gray-400 text-sm">Sustainable material sourcing experts.</p>
+                </div>
+            </div>
+            <p class="mt-8 text-gray-600 text-xs">
+                Powered by <span class="font-semibold text-blue-400">Azure</span> | web4.0os Platform
+            </p>
+        </footer>
+    </div>
+
+    <script src="nlweb.js"></script>
+
+
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=Unnab/build-web4-web-search" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>

@@ -1,8 +1,8 @@
 ---
-title: build-ai-dashboard
+title: build-web4-web-search
 emoji: 🐳
-colorFrom: green
-colorTo: gray
+colorFrom: blue
+colorTo: red
 sdk: static
 pinned: false
 tags:
