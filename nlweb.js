@@ -67,8 +67,10 @@ async function askOpenAIWithEmbedding(question, closestText, onChunkReceived) {
     const endpoint = "https://au-m9vezg5i-eastus2.services.ai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2023-05-15";
 
     const apiMessages = [
-        { role: "system", content: "You are a helpful assistant for construction data. The current year is 2025. Please provide detailed answers, using Markdown for clear headings, bullet points, and tables. For tables, use standard Markdown table syntax. Separate major sections with '---'. Keep responses concise but informative for a chat context." },
-        ...conversationHistory.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'assistant', content: msg.text })),
+        {
+            role: "system",
+            content: "You are a helpful assistant for construction data. The current year is 2025. Please provide **concise, clear, and to-the-point** answers. Organize your responses using **bullet points** or **tables**. If possible, include **source links** supporting your answer, formatted as `[Source Name](source_link)` either in parentheses or at the end of the relevant sentence. Separate major sections with '---'. Ensure responses are **informative and easy to understand**, fitting a chat context.",
+        },        ...conversationHistory.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'assistant', content: msg.text })),
         {
             role: "user",
             content: `User question: ${question}\n\nHere is the most relevant information retrieved based on embeddings:\n${closestText}\n\nPlease provide a detailed answer based on this.`,
@@ -351,10 +353,18 @@ async function handleSearch(query) {
             }
         });
         const closestText = maxIndex !== -1 ? webResults[maxIndex].snippet : "No relevant web information found.";
+        // En yakın snippet veya yoksa genel web özetini kullan
+        // AI'ya hem snippet'ı hem de linki gönderelim
+        const relevantWebInfo = maxIndex !== -1 ?
+            `Title: ${webResults[maxIndex].title}\nSnippet: ${webResults[maxIndex].snippet}\nLink: ${webResults[maxIndex].link}` :
+            "No relevant web information found.";
+
+        // AI’dan cevabı al
+        const answer = await askOpenAIWithEmbedding(query, relevantWebInfo, (chunk) => { /* ... */ });
 
         // AI'dan cevabı akış olarak al ve UI'ı güncelle
         // loading spinner'ı kaldırın
-        aiMessageBubble.innerHTML = ''; 
+        aiMessageBubble.innerHTML = '';
 
         const fullAnswer = await askOpenAIWithEmbedding(query, closestText, (chunk) => {
             // Her gelen parçayı UI'a ekle
@@ -362,7 +372,7 @@ async function handleSearch(query) {
             aiMessageBubble.innerHTML = formatAiResponse(currentAiResponseContent); // Formatlayarak göster
             chatMessages.scrollTop = chatMessages.scrollHeight; // Her yeni parçada scroll
         });
-        
+
         // Akış tamamlandıktan sonra conversationHistory'ye ekle
         conversationHistory.push({ sender: 'ai', text: fullAnswer });
 
