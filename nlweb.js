@@ -1,9 +1,8 @@
 const embeddingEndpoint = "https://ai-gptai749384661431.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15";
 const embeddingApiKey = "11x9IG7HZkyphyxj7I41UPWOshDNpWJAvUdiuUeVoxnMy6CPsY5cJQQJ99BDACYeBjFXJ3w3AAAAACOGQMYE";
 
-// Chat conversation history
 let conversationHistory = [];
-let currentWebResults = []; // Store current web results for subsequent queries
+let currentWebResults = [];  
 
 async function searchApi(query) {
     const apiKey = "AIzaSyCV6D4-h5d29pjpVMWHhiM-vSzJex0s8E4";
@@ -31,7 +30,7 @@ async function searchApi(query) {
     }
 }
 
-// Embedding oluşturma fonksiyonu
+// Embedding  
 async function getEmbedding(text) {
     const response = await fetch(embeddingEndpoint, {
         method: "POST",
@@ -50,10 +49,9 @@ async function getEmbedding(text) {
     }
 
     const data = await response.json();
-    return data.data[0].embedding; // embedding vektörü döner
+    return data.data[0].embedding;  
 }
-
-// İki vektör arasındaki cosine similarity hesaplama
+ 
 function cosineSimilarity(vecA, vecB) {
     const dotProduct = vecA.reduce((acc, val, i) => acc + val * vecB[i], 0);
     const magA = Math.sqrt(vecA.reduce((acc, val) => acc + val * val, 0));
@@ -61,7 +59,6 @@ function cosineSimilarity(vecA, vecB) {
     return dotProduct / (magA * magB);
 }
 
-// AI’ya soruyu gönderme, gömülü en yakın metni de ekleyerek
 async function askOpenAIWithEmbedding(question, closestText, onChunkReceived) {
     const apiKey = "33UVBdsOXYuThfNXPD80IpUjjxRh6aw2CzDRi5U988ySHG5lWU1OJQQJ99BDACHYHv6XJ3w3AAAAACOGM9JC";
     const endpoint = "https://au-m9vezg5i-eastus2.services.ai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2023-05-15";
@@ -91,7 +88,7 @@ async function askOpenAIWithEmbedding(question, closestText, onChunkReceived) {
             top_p: 1,
             frequency_penalty: 0,
             presence_penalty: 0,
-            stream: true, // BU ÖNEMLİ! Akış için True olarak ayarla
+            stream: true, //akis olacak mi ? true
         }),
     });
 
@@ -109,43 +106,38 @@ async function askOpenAIWithEmbedding(question, closestText, onChunkReceived) {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-
-        // Her bir 'data:' satırını işle
+ 
         const lines = buffer.split('\n');
-        buffer = lines.pop(); // Son satırı (tamamlanmamış olabilir) tampona geri koy
+        buffer = lines.pop();  
 
         for (const line of lines) {
             if (line.startsWith('data: ')) {
                 const jsonStr = line.substring(6);
                 if (jsonStr === '[DONE]') {
-                    reader.cancel(); // Akışı sonlandır
+                    reader.cancel();  
                     return fullResponse;
                 }
                 try {
                     const parsed = JSON.parse(jsonStr);
                     const content = parsed.choices[0]?.delta?.content || "";
                     fullResponse += content;
-                    onChunkReceived(content); // Her gelen parçayı UI'a gönder
+                    onChunkReceived(content);  
                 } catch (e) {
                     console.warn("JSON parsing error:", e, "on line:", jsonStr);
                 }
             }
         }
     }
-    return fullResponse; // Tamamlanmış yanıtı döndür (ancak stream ile zaten UI güncelleniyor)
+    return fullResponse;  
 }
 
 // Kullanıcı sorgusu ve web sonuçlarını embedding ile en iyi eşleşmeyi bulup AI’a gönderme
-async function processQueryWithEmbedding(query, webResults) {
-    // Kullanıcı sorusunun embeddingi
-    const queryEmbedding = await getEmbedding(query);
-
-    // Web sonuçlarının snippet/text embeddinglerini al ve cosine similarity hesapla
+async function processQueryWithEmbedding(query, webResults) { 
+    const queryEmbedding = await getEmbedding(query); 
     const embeddings = await Promise.all(
         webResults.map(item => getEmbedding(item.snippet))
     );
-
-    // En yüksek benzerlikli snippet indeksini bul
+ 
     let maxSim = -1;
     let maxIndex = -1;
     embeddings.forEach((embedding, idx) => {
@@ -155,16 +147,13 @@ async function processQueryWithEmbedding(query, webResults) {
             maxIndex = idx;
         }
     });
-
-    // En yakın snippet veya yoksa genel web özetini kullan
+ 
     const closestText = maxIndex !== -1 ? webResults[maxIndex].snippet : "No relevant web information found.";
-
-    // AI’dan cevabı al
+ 
     const answer = await askOpenAIWithEmbedding(query, closestText);
     return answer;
 }
-
-// Function to format the AI's raw text response into structured HTML
+ 
 function formatAiResponse(responseText) {
     let formattedHtml = '';
     const lines = responseText.split('\n').filter(line => line.trim() !== '');
@@ -190,7 +179,7 @@ function formatAiResponse(responseText) {
                 formattedHtml += '<table class="min-w-full bg-gray-900 rounded-lg overflow-hidden shadow-md mb-4">';
                 formattedHtml += '<thead><tr class="bg-blue-900/20">';
                 tableHeader.forEach(header => {
-                    formattedHtml += `<th class="px-4 py-2 text-left text-blue-300 font-semibold thin-border-blue">**${header}**</th>`;
+                    formattedHtml += `<th class="px-4 py-2 text-left text-blue-300 font-semibold thin-border-blue">${header}</th>`;
                 });
                 formattedHtml += '</tr></thead><tbody>';
             }
@@ -272,41 +261,37 @@ function formatAiResponse(responseText) {
     return formattedHtml;
 }
 
-
-// DOM elementleri
+ 
 const searchInput = document.getElementById("searchInput");
 const popularQueries = document.getElementById("popularQueries");
 const searchResults = document.getElementById("searchResults");
 const aiSuggestions = document.getElementById("aiSuggestions");
 const searchQuerySpan = document.getElementById("searchQuery");
-const chatMessages = document.getElementById("chatMessages"); // Yeni sohbet mesajları container'ı
-const chatInput = document.getElementById("chatInput"); // Yeni sohbet inputu
-const sendMessageButton = document.getElementById("sendMessageButton"); // Yeni gönder butonu
-
-// Function to display a message in the chat
+const chatMessages = document.getElementById("chatMessages"); 
+const chatInput = document.getElementById("chatInput");  
+const sendMessageButton = document.getElementById("sendMessageButton"); 
+ 
 function displayMessage(sender, textContent) {
     const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message-container'); // Use flex column on parent to center child message
+    messageDiv.classList.add('message-container'); 
 
     const messageBubble = document.createElement('div');
     messageBubble.classList.add('p-4', 'rounded-lg', 'max-w-[85%]');
 
     if (sender === 'user') {
-        messageBubble.classList.add('user-message', 'self-end'); // Align right for user
+        messageBubble.classList.add('user-message', 'self-end');  
     } else {
-        messageBubble.classList.add('ai-message', 'self-start'); // Align left for AI
+        messageBubble.classList.add('ai-message', 'self-start');  
     }
-    messageBubble.innerHTML = textContent; // Use innerHTML for formatted AI responses
+    messageBubble.innerHTML = textContent; 
 
     messageDiv.appendChild(messageBubble);
     chatMessages.appendChild(messageDiv);
-
-    // Scroll to the bottom of the chat
+ 
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-
-// Ana arama ve sohbet işleme fonksiyonu
-// Ana arama ve sohbet işleme fonksiyonu
+ 
+// Ana arama ve sohbet işleme  
 async function handleSearch(query) {
     if (!query) return;
 
@@ -314,12 +299,10 @@ async function handleSearch(query) {
     searchResults.classList.remove("hidden");
     aiSuggestions.classList.remove("hidden");
     searchQuerySpan.textContent = query;
-
-    // Kullanıcı mesajını ekle
+ 
     conversationHistory.push({ sender: 'user', text: query });
     displayMessage('user', query);
-
-    // AI yanıtı için boş bir bubble oluştur ve loading spinner ekle
+ 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.classList.add('message-container');
     const aiMessageBubble = document.createElement('div');
@@ -327,9 +310,9 @@ async function handleSearch(query) {
     aiMessageBubble.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
     aiMessageDiv.appendChild(aiMessageBubble);
     chatMessages.appendChild(aiMessageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;  
 
-    let currentAiResponseContent = ""; // AI'dan gelen akış içeriğini biriktir
+    let currentAiResponseContent = "";  
 
     try {
         let webResults = currentWebResults;
@@ -337,8 +320,7 @@ async function handleSearch(query) {
             webResults = await searchApi(query);
             currentWebResults = webResults;
         }
-
-        // Embeddingleri al ve en yakın metni bul (bu kısım aynı kalır)
+ 
         const queryEmbedding = await getEmbedding(query);
         const embeddings = await Promise.all(
             webResults.map(item => getEmbedding(item.snippet))
@@ -352,31 +334,22 @@ async function handleSearch(query) {
                 maxIndex = idx;
             }
         });
-        const closestText = maxIndex !== -1 ? webResults[maxIndex].snippet : "No relevant web information found.";
-        // En yakın snippet veya yoksa genel web özetini kullan
-        // AI'ya hem snippet'ı hem de linki gönderelim
+        const closestText = maxIndex !== -1 ? webResults[maxIndex].snippet : "No relevant web information found."; 
         const relevantWebInfo = maxIndex !== -1 ?
             `Title: ${webResults[maxIndex].title}\nSnippet: ${webResults[maxIndex].snippet}\nLink: ${webResults[maxIndex].link}` :
-            "No relevant web information found.";
-
-        // AI’dan cevabı al
+            "No relevant web information found."; 
         const answer = await askOpenAIWithEmbedding(query, relevantWebInfo, (chunk) => { /* ... */ });
-
-        // AI'dan cevabı akış olarak al ve UI'ı güncelle
-        // loading spinner'ı kaldırın
+ 
         aiMessageBubble.innerHTML = '';
 
-        const fullAnswer = await askOpenAIWithEmbedding(query, closestText, (chunk) => {
-            // Her gelen parçayı UI'a ekle
+        const fullAnswer = await askOpenAIWithEmbedding(query, closestText, (chunk) => { 
             currentAiResponseContent += chunk;
-            aiMessageBubble.innerHTML = formatAiResponse(currentAiResponseContent); // Formatlayarak göster
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Her yeni parçada scroll
+            aiMessageBubble.innerHTML = formatAiResponse(currentAiResponseContent);  
+            chatMessages.scrollTop = chatMessages.scrollHeight;  
         });
-
-        // Akış tamamlandıktan sonra conversationHistory'ye ekle
+ 
         conversationHistory.push({ sender: 'ai', text: fullAnswer });
-
-        // Web sonuçlarını göster
+ 
         if (currentWebResults.length > 0) {
             suggestionsContent.innerHTML =
                 `<p class="text-sm font-semibold text-gray-300 mb-2">Relevant Web Results:</p><ul class="list-disc ml-4 text-sm space-y-1">` +
@@ -391,21 +364,19 @@ async function handleSearch(query) {
             suggestionsContent.innerHTML = `<p class="text-sm">No new web suggestions available for this query.</p>`;
         }
 
-    } catch (error) {
-        // Hata durumunda loading spinner'ı kaldır ve hata mesajını göster
+    } catch (error) { 
         aiMessageBubble.innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
         suggestionsContent.innerHTML = `<p class="text-sm" style="color:red">Error fetching web results or AI response.</p>`;
     } finally {
-        chatInput.value = ""; // Mesaj gönderildikten sonra input'u temizle
+        chatInput.value = "";  
     }
 }
-
-// Event Listeners
+ 
 searchInput.addEventListener("keydown", async (e) => {
     if (e.key === "Enter") {
         const query = searchInput.value.trim();
         if (!query) return;
-        conversationHistory = []; // Clear history for a new initial search
+        conversationHistory = [];  
         await handleSearch(query);
     }
 });
@@ -424,8 +395,7 @@ chatInput.addEventListener("keydown", async (e) => {
     }
 });
 
-
-// Optional: Add event listeners for popular queries to populate search input
+ 
 document.querySelectorAll('#popularQueries li').forEach(item => {
     item.addEventListener('click', () => {
         searchInput.value = item.textContent.trim();
