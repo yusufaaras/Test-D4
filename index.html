@@ -1,273 +1,2303 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="tr">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Build.web4 - AI Construction Search</title>
+
+    <title>Realestate.Web4 | Smart Real Estate Intelligence. Elevated by AI. Optimized for You.</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
-        /* Custom ultra-thin borders */
-        .thin-border {
-            border-width: 1px;
-        }
-        .thin-border-blue {
-            border: 1px solid rgba(56, 182, 255, 0.2);
-        }
-        .thin-border-white {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .thin-border-purple {
-            border: 1px solid rgba(168, 85, 247, 0.2);
-        }
 
-        /* Custom scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(56, 182, 255, 0.3);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(56, 182, 255, 0.5);
-        }
+        /* Genel font ve arka plan ayarları */
 
-        /* Animation for search results */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
+        body {
 
-        /* Dark gradient background */
-        .dark-gradient-bg {
-            background: linear-gradient(135deg, #0a1a3a 0%, #050d21 100%);
-        }
+            font-family: 'Nunito Sans', sans-serif; /* Nunito Sans fontu kullanılıyor */
 
-        /* Darker card backgrounds */
-        .dark-card {
-            background: rgba(15, 25, 50, 0.7);
-        }
-        .darker-card {
-            background: rgba(10, 20, 40, 0.8);
-        }
-        .darkest-card {
-            background: rgba(5, 15, 30, 0.9);
-        }
+            /* Canvas'ın ana gradyan arka planı */
 
-        /* Table styling within resultsContainer */
-        #resultsContainer table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 0.75rem; /* Azaltıldı */
-            border-radius: 0.5rem;
-            overflow: hidden;
-            font-size: 0.85em; /* Orijinalden daha küçük */
-        }
+            background: linear-gradient(to bottom right, #1a202c, #0a0a2a); /* Koyu gri ve çok koyu mavi gradyan */
 
-        #resultsContainer th,
-        #resultsContainer td {
-            padding: 0.4rem 0.75rem; /* Orijinal 0.75rem 1rem yerine */
-            border: 1px solid rgba(56, 182, 255, 0.1);
-            text-align: left;
-        }
+            color: #e0e0e0; /* Açık metin rengi */
 
-        #resultsContainer th {
-            background-color: rgba(56, 182, 255, 0.15);
-            color: #93c5fd;
-            font-weight: 600;
-        }
-
-        #resultsContainer tr:nth-child(even) {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-
-        /* **YENİ EKLENEN/DÜZENLENEN:** Yazı boyutları küçültüldü */
-        #resultsContainer p {
-            margin-bottom: 0.75rem; /* Azaltıldı */
-            line-height: 1.5; /* Biraz sıkıştırıldı */
-            font-size: 0.9em; /* Genel paragraf metni küçültüldü */
-        }
-        #resultsContainer ul {
-            list-style-type: disc;
-            margin-left: 1.25rem; /* Girinti azaltıldı */
-            margin-bottom: 0.75rem; /* Azaltıldı */
-            font-size: 0.9em; /* Liste metni küçültüldü */
-        }
-        #resultsContainer li {
-            margin-bottom: 0.3rem; /* Liste öğeleri arası boşluk azaltıldı */
-        }
-        #resultsContainer h2 {
-            font-size: 1.5rem; /* Tailwind text-3xl (1.875rem) yerine text-2xl (1.5rem) */
-            font-weight: 700;
-            color: #60a5fa;
-            margin-top: 1.25rem; /* Azaltıldı */
-            margin-bottom: 0.75rem; /* Azaltıldı */
-        }
-        #resultsContainer h3 {
-            font-size: 1.25rem; /* Tailwind text-2xl (1.5rem) yerine text-xl (1.25rem) */
-            font-weight: 600;
-            color: #93c5fd;
-            margin-top: 0.75rem; /* Azaltıldı */
-            margin-bottom: 0.5rem; /* Azaltıldı */
-        }
-        #resultsContainer a {
-            color: #60a5fa;
-            text-decoration: underline;
-        }
-        #resultsContainer a:hover {
-            color: #3b82f6;
-        }
-
-        /* Chat specific styles */
-        .ai-message {
-            background-color: rgba(16, 30, 60, 0.9); /* Darker blue */
-            border: 1px solid rgba(56, 182, 255, 0.15);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            max-width: 85%;
-            align-self: flex-start; /* Left aligned */
-            color: #e2e8f0; /* text-gray-200 */
-        }
-
-        .user-message {
-            background-color: rgba(45, 20, 80, 0.9); /* Darker purple */
-            border: 1px solid rgba(168, 85, 247, 0.15);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            max-width: 85%;
-            align-self: flex-end; /* Right aligned */
-            color: #e2e8f0; /* text-gray-200 */
-        }
-
-        .message-container {
             display: flex;
-            flex-direction: column;
-            width: 100%;
+
+            flex-direction: column; /* İçeriğin dikey olarak yığılmasını sağlar */
+
+            justify-content: flex-start; /* İçeriği üste hizalar */
+
+            align-items: center;
+
+            min-height: 100vh;
+
+            margin: 0;
+
+            position: relative;
+
+            overflow-x: hidden; /* Yatay taşmayı önler */
+
         }
+
+
+
+        /* İnce karartma ve derinlik için katman, premium hissi artırır - tek renk için ayarlandı */
+
+        body::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            bottom: 0;
+
+            /* Aynı safir mavisinin ince gradyanı derinlik için */
+
+            background: linear-gradient(180deg, rgba(13, 13, 43, 0.4) 0%, rgba(13, 13, 43, 0.2) 50%, rgba(13, 13, 43, 0.4) 100%);
+
+            z-index: 1;
+
+        }
+
+
+
+        /* Genel metin boyutları ve ağırlıkları */
+
+        h1, h2, h3, h4, h5, h6 {
+
+            font-family: 'Nunito Sans', sans-serif; /* Tüm başlıklar Nunito Sans kullanır */
+
+            font-weight: 700; /* Başlıklar için daha kalın */
+
+            letter-spacing: -0.01em; /* Hafif karakter aralığı ayarı */
+
+        }
+
+
+
+        /* Başlıklar ve genel metin için ayarlanmış font boyutları */
+
+        h1 { font-size: 2.5rem; } /* Modern, temiz bir görünüm için ayarlandı */
+
+        h2 { font-size: 1.8rem; }
+
+        h3 { font-size: 1.3rem; }
+
+        p, li, span, a, button, select, input { font-size: 0.9rem; } /* Genel metin boyutu */
+
+
+
+
+
+        /* Ana içerik kapsayıcısı - artık main-container-wrapper yok, doğrudan main üzerinde */
+
+        main {
+
+            position: relative;
+
+            z-index: 2; /* İçeriği arka planın üzerine getirir */
+
+            max-width: 90%;
+
+            width: 900px; /* Daha iyi içerik dağılımı için daha geniş */
+
+            padding-top: 5rem; /* Üst başlıktan boşluk */
+
+            padding-bottom: 3rem; /* Altbilgiden önce boşluk */
+
+            /* main'in kendisi artık bir kart değil, sadece içeriği barındıran bir alan */
+
+            backdrop-filter: blur(10px); /* Daha güçlü bulanıklık efekti */
+
+            -webkit-backdrop-filter: blur(10px); /* Safari desteği */
+
+        }
+
+
+
+        /* Marka başlığı (logo) stilizasyonu - adapted from uWeb4.com */
+
+        .brand-title {
+
+            font-size: 4rem; /* Marka için daha küçük font boyutu */
+
+            font-weight: 700; /* Daha kalın font ağırlığı */
+
+            letter-spacing: 0.005em; /* "Web4.0"ı daha yaklaştırmak için azaltılmış harf aralığı */
+
+            text-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5),
+
+                         0px 0px 10px rgba(66, 133, 244, 0.3);
+
+            transition: all 0.3s ease;
+
+            display: flex;
+
+            align-items: baseline;
+
+            color: white; /* Marka başlığının beyaz olmasını sağlar */
+
+            margin-bottom: 0.5rem; /* Başlık ile ikonlar arasına boşluk */
+
+        }
+
+
+
+        .brand-title .user-part {
+
+            font-weight: 200; /* "u" için ekstra hafif font ağırlığı */
+
+            font-size: 0.55em; /* Göreceli olarak daha küçük boyut */
+
+            margin-right: 0.002em; /* "u" ve "Web4" arasındaki boşluğu azaltır */
+
+        }
+
+
+
+        .brand-title:hover {
+
+            text-shadow: 0px 7px 20px rgba(0, 0, 0, 0.7),
+
+                         0px 0px 15px rgba(66, 133, 244, 0.5);
+
+            transform: translateY(-2px);
+
+        }
+
+
+
+        /* Slogan metni stilizasyonu - updated for smaller size and gray color */
+
+        .slogan-text {
+
+            font-size: 0.9rem; /* Daha da küçük font boyutu */
+
+            font-weight: 300; /* Hafif font ağırlığı */
+
+            letter-spacing: normal;
+
+            text-shadow: none;
+
+            line-height: 1.6;
+
+            color: #A0A0A0; /* Gri renk */
+
+        }
+
+
+
+        /* Input and Select Styles (from uWeb4.com) */
+
+        .input-dark {
+
+            width: 100%;
+
+            padding: 0.8rem 1.2rem;
+
+            border-radius: 0.6rem;
+
+            background-color: transparent; /* Şeffaf arka plan */
+
+            border: 1px solid rgba(66, 133, 244, 0.3); /* İnce mavi kenarlık */
+
+            color: #e0e0e0;
+
+            appearance: none;
+
+            -webkit-appearance: none;
+
+            -moz-appearance: none;
+
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+
+            background-repeat: no-repeat;
+
+            background-position: right 1rem center;
+
+            background-size: 1.2em 1.2em;
+
+            font-size: 1rem;
+
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+
+        }
+
+
+
+        .input-dark:focus {
+
+            outline: none;
+
+            border-color: #4285F4;
+
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3);
+
+            background-color: rgba(66, 133, 244, 0.05);
+
+        }
+
+
+
+        /* input-dark elementlerinin üzerine gelindiğinde hover efekti eklendi */
+
+        .input-dark:hover {
+
+            border-color: #4285F4; /* Hover'da düz mavi kenarlık */
+
+            background-color: rgba(66, 133, 244, 0.05); /* Hover'da ince mavi arka plan */
+
+        }
+
+
+
+        /* Buton Stilleri (uWeb4.com'dan) */
+
+        .btn-primary {
+
+            background-color: transparent; /* Arka plan rengi yok */
+
+            border: 1px solid rgba(66, 133, 244, 0.5); /* İnce mavi kenarlık */
+
+            color: white; /* İkon rengi beyaz kalır */
+
+            padding: 0.75rem 1.25rem;
+
+            border-radius: 0.6rem;
+
+            font-weight: 500;
+
+            font-size: 1.05rem;
+
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+
+            cursor: pointer;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            width: auto;
+
+            min-width: 48px;
+
+            height: 48px;
+
+        }
+
+
+
+        .btn-primary:hover {
+
+            background-color: rgba(66, 133, 244, 0.1);
+
+            border-color: #4285F4;
+
+            transform: translateY(-1px);
+
+        }
+
+
+
+        .btn-primary:active {
+
+            transform: translateY(0);
+
+            background-color: rgba(66, 133, 244, 0.2);
+
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+        }
+
+
+
+        /* İkon Buton Stilleri (uWeb4.com'dan) */
+
+        .btn-icon-dark {
+
+            background-color: transparent; /* Şeffaf arka plan */
+
+            border: 1px solid rgba(66, 133, 244, 0.3); /* İnce mavi kenarlık */
+
+            color: #e0e0e0; /* İkon rengi */
+
+            border-radius: 50%;
+
+            padding: 0.6rem;
+
+            font-size: 0.8rem;
+
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+
+            display: flex; /* İkonu ortalamak için esnek kutu sağlar */
+
+            justify-content: center;
+
+            align-items: center;
+
+            width: 48px; /* Dairesel buton için sabit boyut */
+
+            height: 48px;
+
+        }
+
+
+
+        .btn-icon-dark:hover {
+
+            background-color: rgba(66, 133, 244, 0.1);
+
+            border-color: #4285F4;
+
+            color: #ffffff;
+
+            transform: scale(1.05);
+
+        }
+
+
+
+        /* Kart Stilleri (uWeb4.com kapsayıcısından) */
+
+        .card-dark {
+
+            background-color: rgba(0, 0, 0, 0.1); /* Daha şeffaf, hafif siyah arka plan */
+
+            border-radius: 1rem; /* Ana kapsayıcının kenar yuvarlaklığına uygun */
+
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Ana kapsayıcının gölgesine uygun */
+
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease; /* Arka plan ve kenarlık geçişleri eklendi */
+
+            border: 1px solid rgba(66, 133, 244, 0.1); /* Kartlar için ince kenarlık */
+
+            backdrop-filter: blur(10px); /* Daha güçlü bulanıklık efekti */
+
+            -webkit-backdrop-filter: blur(10px); /* Safari desteği */
+
+        }
+
+
+
+        .card-dark:hover {
+
+            transform: translateY(-0.35rem);
+
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7);
+
+            background-color: rgba(66, 133, 244, 0.05); /* Hover'da ince mavi arka plan */
+
+            border-color: #4285F4; /* Hover'da düz mavi kenarlık */
+
+        }
+
+
+
+        /* Sohbet balonu stilleri */
+
+        .ai-bubble {
+
+            background-color: rgba(66, 133, 244, 0.1); /* İnce mavi arka plan */
+
+            color: #e0e0e0;
+
+            border-radius: 1.25rem 1.25rem 1.25rem 0.5rem;
+
+            align-self: flex-start;
+
+            line-height: 1.7;
+
+            font-size: 0.85rem;
+
+            border: 1px solid rgba(66, 133, 244, 0.3);
+
+        }
+
+
+
+        .user-bubble {
+
+            background-color: rgba(0, 0, 0, 0.4); /* Kullanıcı için daha şeffaf, koyu bir ton */
+
+            color: #e0e0e0;
+
+            border-radius: 1.25rem 1.25rem 0.5rem 1.25rem;
+
+            align-self: flex-end;
+
+            line-height: 1.7;
+
+            font-size: 0.85rem;
+
+            border: 1px solid rgba(66, 133, 244, 0.3);
+
+        }
+
+
+
+        /* Sorgu çipi stilleri */
+
+        .query-chip {
+
+            background-color: transparent; /* Şeffaf arka plan */
+
+            border: 1px solid rgba(66, 133, 244, 0.3); /* İnce mavi kenarlık */
+
+            border-radius: 1.5rem;
+
+            padding: 0.1rem 0.3rem; /* Daha da küçük dolgu */
+
+            display: inline-flex;
+
+            align-items: center;
+
+            color: #A0A0A0; /* Gri metin rengi */
+
+            cursor: pointer;
+
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, color 0.3s ease; /* Renk geçişi eklendi */
+
+            font-size: 0.6rem; /* Daha da küçük font boyutu */
+
+            font-weight: 500;
+
+            height: 25px; /* Çip yüksekliğini sabitle */
+
+        }
+
+
+
+        .query-chip:hover {
+
+            background-color: rgba(64, 224, 208, 0.1); /* Hover'da ince turkuaz arka plan */
+
+            border-color: #40E0D0; /* Hover'da düz turkuaz kenarlık */
+
+            color: #00CED1; /* Hover'da turkuaz metin */
+
+            transform: translateY(-1px);
+
+        }
+
+
+
+        /* Sorgu çipi içindeki butonun stilini ayarlama */
+
+        .query-chip .btn-primary {
+
+            padding: 0.05rem; /* Çok minimal dolgu */
+
+            min-width: 16px; /* Dokunulabilir boyutu koru */
+
+            height: 16px;
+
+            border-radius: 50%; /* Tamamen yuvarlak olmasını sağlar */
+
+            border: 1px solid rgba(66, 133, 244, 0.4); /* Daha belirgin bir kenarlık */
+
+            margin-left: 0.2rem; /* Metin ile buton arasında küçük boşluk */
+
+        }
+
+
+
+        .query-chip .btn-primary:hover {
+
+            background-color: rgba(66, 133, 244, 0.15); /* Hover'da daha görünür arka plan */
+
+            border-color: #4285F4;
+
+            transform: translateY(-0.5px); /* Daha az dramatik kaldırma */
+
+        }
+
+
+
+        .query-chip .btn-primary:active {
+
+            transform: translateY(0.5px);
+
+            background-color: rgba(66, 133, 244, 0.25);
+
+        }
+
+
+
+        /* Dil açılır menüsü içeriği - uWeb4.com'un seçim kutusuna uygun */
+
+        .language-dropdown-content {
+
+            display: none;
+
+            position: absolute;
+
+            right: 0;
+
+            background-color: rgba(0, 0, 0, 0.7); /* Kapsayıcıya uygun, hafifçe daha opak */
+
+            min-width: 150px;
+
+            border-radius: 0.75rem;
+
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+
+            z-index: 1000;
+
+            overflow: hidden;
+
+            border: 1px solid rgba(66, 133, 244, 0.3); /* İnce mavi kenarlık */
+
+        }
+
+
+
+        .language-dropdown-content li:hover {
+
+            background-color: rgba(66, 133, 244, 0.1); /* Hover'da ince mavi arka plan */
+
+            color: #ffffff; /* Hover'da beyaz metin */
+
+        }
+
+
+
+        /* İkon bölümü stilizasyonu (uWeb4.com'dan) */
+
+        .icon-section {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 0.75rem; /* İkonlar arası boşluk */
+
+            margin-top: 0.5rem; /* Azaltılmış margin-top */
+
+            margin-bottom: 0rem; /* Azaltılmış margin-bottom */
+
+            flex-wrap: wrap;
+
+        }
+
+
+
+        .icon-item {
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            color: #40E0D0; /* İkonlar ve metin için turkuaz renk */
+
+            font-size: 0.65rem; /* İkon etiketleri için küçük font boyutu */
+
+            font-weight: 400;
+
+            text-align: center;
+
+            transition: color 0.3s ease, transform 0.2s ease;
+
+        }
+
+
+
+        .icon-item:hover {
+
+            color: #00CED1; /* Darker turquoise on hover */
+
+            transform: translateY(-2px);
+
+        }
+
+
+
+        .icon-item svg {
+
+            width: 1.5rem; /* İkon boyutu */
+
+            height: 1.5rem;
+
+            stroke: currentColor;
+
+            stroke-width: 1.5;
+
+            fill: rgba(64, 224, 208, 0.1); /* İnce turkuaz dolgu */
+
+            margin-bottom: 0.15rem;
+
+        }
+
+
+
+        /* Özel kaydırma çubuğu stilleri */
+
+        .scrollbar-thin {
+
+            scrollbar-width: thin;
+
+            scrollbar-color: #4A5568 #2D3748;
+
+        }
+
+
+
+        .scrollbar-thin::-webkit-scrollbar {
+
+            width: 8px;
+
+        }
+
+
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+
+            background: #2D3748;
+
+            border-radius: 10px;
+
+        }
+
+
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+
+            background-color: #4A5568;
+
+            border-radius: 10px;
+
+            border: 2px solid #2D3748;
+
+        }
+
+
+
+        /* Yavaş zıplama için anahtar kare */
+
+        @keyframes bounce-slow {
+
+            0%, 100% {
+
+                transform: translateY(0);
+
+            }
+
+            50% {
+
+                transform: translateY(-5px);
+
+            }
+
+        }
+
+
+
+        .animate-bounce-slow {
+
+            animation: bounce-slow 3s infinite ease-in-out;
+
+        }
+
+
+
+        /* Duyarlı ayarlamalar */
+
+        @media (max-width: 768px) {
+
+            h1 { font-size: 2rem; }
+
+            h2 { font-size: 1.5rem; }
+
+            h3 { font-size: 1.1rem; }
+
+            p, li, span, a, button, select, input { font-size: 0.8rem; }
+
+
+
+            main {
+
+                padding-top: 4rem;
+
+                padding-bottom: 2rem;
+
+            }
+
+
+
+            .brand-title {
+
+                font-size: 3rem;
+
+                letter-spacing: 0.08em;
+
+            }
+
+            .brand-title .user-part {
+
+                font-size: 0.5em; /* Mobil için göreceli olarak daha küçük boyut */
+
+            }
+
+            .slogan-text {
+
+                font-size: 1rem;
+
+            }
+
+            .input-dark {
+
+                padding: 0.6rem 1rem;
+
+                font-size: 0.85rem;
+
+            }
+
+            .btn-primary, .btn-icon-dark {
+
+                padding: 0.5rem;
+
+                min-width: 40px;
+
+                height: 40px;
+
+            }
+
+            .btn-primary i, .btn-icon-dark i {
+
+                font-size: 1.1rem;
+
+            }
+
+            .query-chip {
+
+                font-size: 0.55rem; /* Mobil için daha da küçük font boyutu */
+
+                padding: 0.15rem 0.3rem; /* Mobil için daha da küçük dolgu */
+
+            }
+
+            .language-dropdown-content li {
+
+                font-size: 0.7rem;
+
+            }
+
+            .icon-section {
+
+                gap: 0.75rem;
+
+                margin-top: 0.5rem; /* Mobil için de azaltılmış margin-top */
+
+                margin-bottom: 0rem; /* Mobil için de azaltılmış margin-bottom */
+
+            }
+
+            .icon-item svg {
+
+                width: 1.25rem;
+
+                height: 1.25rem;
+
+            }
+
+            .icon-item {
+
+                font-size: 0.55rem;
+
+            }
+
+        }
+
     </style>
+
 </head>
-<body class="dark-gradient-bg min-h-screen text-gray-200 font-sans">
-    <div class="container mx-auto px-4 py-10 flex flex-col items-center">
-        <header class="mb-12 text-center select-none thin-border-white rounded-lg p-6 dark-card backdrop-blur-sm">
-            <h1 class="text-5xl font-extrabold tracking-wide mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                Build.web4
-            </h1>
-            <p class="text-lg font-light text-gray-400 max-w-xl mx-auto">
-                Your smart gateway to construction data.
-            </p>
-        </header>
 
-        <div class="w-full max-w-5xl flex flex-col gap-8">
-            <div class="flex items-center darker-card rounded-xl p-1 shadow-2xl backdrop-blur-md gap-4 thin-border-blue">
-                <div class="flex items-center pl-4 text-blue-400">
-                    <i class="fas fa-search"></i>
-                </div>
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search projects, BIM models, materials, suppliers..."
-                    class="flex-grow bg-transparent outline-none py-4 px-2 rounded-md placeholder-gray-500 text-gray-200 text-lg"
-                    autofocus
-                />
-                <div class="flex gap-2 pr-2">
-                    <button class="p-2 rounded-full hover:bg-blue-500/10 thin-border-blue">
-                        <i class="fas fa-microphone text-blue-400"></i>
-                    </button>
-                    <button class="p-2 rounded-full hover:bg-blue-500/10 thin-border-blue">
-                        <i class="fas fa-camera text-blue-400"></i>
-                    </button>
-                    <button class="p-2 rounded-full hover:bg-blue-500/10 thin-border-blue">
-                        <i class="fas fa-sliders-h text-blue-400"></i>
-                    </button>
-                </div>
-            </div>
+<body class="bg-gradient-to-br from-gray-900 to-blue-950 min-h-screen p-4">
 
-            <div id="popularQueries" class="text-gray-400 thin-border-purple rounded-xl p-6 darker-card">
-                <h3 class="mb-4 text-xl font-semibold text-gray-300">Need help? Try our popular queries:</h3>
-                <ul class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
-                        Find ongoing construction projects
-                    </li>
-                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
-                        Search BIM & CAD models
-                    </li>
-                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
-                        Material suppliers near me
-                    </li>
-                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
-                        Latest cost estimates
-                    </li>
-                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
-                        Real-time site management data
-                    </li>
-                    <li class="cursor-pointer rounded-md darkest-card px-6 py-3 hover:bg-blue-900/20 transition shadow-md thin-border-blue hover:border-blue-400/30">
-                        Project timelines and deadlines
-                    </li>
-                </ul>
-            </div>
+    <header class="w-full py-4 px-8 fixed top-0 z-50 flex flex-col items-center justify-center">
 
-            <div id="searchResults" class="hidden darker-card rounded-xl shadow-lg p-6 max-h-[60vh] flex flex-col justify-between thin-border-blue">
-                <h3 class="mb-4 text-xl font-semibold text-gray-300">Search Results for "<span id="searchQuery" class="text-blue-400">query</span>":</h3>
-                <div id="chatMessages" class="flex-grow overflow-y-auto custom-scrollbar p-2 mb-4 space-y-4">
-                    </div>
+        <h1 class="brand-title">
 
-                <div id="chatInputContainer" class="flex items-center gap-2 thin-border-blue rounded-lg p-1 bg-gray-800">
-                    <input
-                        type="text"
-                        id="chatInput"
-                        placeholder="Type your message here..."
-                        class="flex-grow bg-transparent outline-none py-3 px-4 rounded-md placeholder-gray-500 text-gray-200 text-base"
-                    />
-                    <button id="sendMessageButton" class="p-3 rounded-lg bg-blue-600 hover:bg-blue-700 transition text-white">
-                        <i class="fas fa-paper-plane"></i> Send
-                    </button>
-                </div>
-            </div>
+            Realestate.<span class="user-part">u</span>Web4
 
-            <div id="aiSuggestions" class="hidden darkest-card rounded-xl p-4 mt-4 thin-border-purple">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-8 h-8 rounded-full bg-purple-900/20 flex items-center justify-center thin-border-purple">
-                        <i class="fas fa-robot text-purple-400"></i>
-                    </div>
-                    <span class="font-medium text-purple-400">AI Suggestions (Based on Web Search)</span>
-                </div>
-                <div id="suggestionsContent" class="text-gray-400 text-sm">
-                    </div>
-            </div>
+        </h1>
+
+    </header>
+
+
+
+    <main class="flex-grow flex flex-col items-center justify-center w-full max-w-[90%] md:max-w-[900px] mx-auto pt-[5rem] pb-[3rem]">
+
+        <section class="text-center py-6 px-4">
+
+            <h2 class="slogan-text mb-8 text-center text-gray-100 leading-relaxed">
+
+                Smart Real Estate Intelligence. Elevated by AI. Optimized for You.
+
+            </h2>
+
+        </section>
+
+
+
+        <div class="flex space-x-3 p-1 bg-transparent rounded-full shadow-inner mb-8 mx-4 border border-gray-700">
+
+            <button id="work-tab" class="flex-1 px-5 py-2 rounded-full bg-blue-700 text-white text-sm font-semibold shadow-md transition-all duration-200 hover:bg-blue-600">Work</button>
+
+            <button id="web-tab" class="flex-1 px-5 py-2 rounded-full bg-transparent text-gray-400 text-sm font-semibold transition-all duration-200 hover:bg-gray-700 hover:text-white">Web</button>
+
         </div>
 
-        <footer class="mt-auto w-full max-w-5xl pt-12 pb-6 text-center text-sm text-gray-500 select-none">
-            <h4 class="mb-6 text-lg font-semibold text-gray-400">Sponsored by Industry Leaders</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 cursor-default">
-                <div class="rounded-xl darkest-card p-6 shadow-lg thin-border-blue hover:border-blue-400/30 transition">
-                    <h5 class="text-xl font-bold text-gray-300 mb-2">BuildTech Solutions</h5>
-                    <p class="text-gray-400 text-sm">Innovative building automation systems.</p>
-                </div>
-                <div class="rounded-xl darkest-card p-6 shadow-lg thin-border-blue hover:border-blue-400/30 transition">
-                    <h5 class="text-xl font-bold text-gray-300 mb-2">SteelWorks Supply</h5>
-                    <p class="text-gray-400 text-sm">Reliable steel and metal providers.</p>
-                </div>
-                <div class="rounded-xl darkest-card p-6 shadow-lg thin-border-blue hover:border-blue-400/30 transition">
-                    <h5 class="text-xl font-bold text-gray-300 mb-2">EcoMaterial Inc</h5>
-                    <p class="text-gray-400 text-sm">Sustainable material sourcing experts.</p>
-                </div>
-            </div>
-            <p class="mt-8 text-gray-600 text-xs">
-                Powered by <span class="font-semibold text-blue-400">Azure</span> | web4.0os Platform
-            </p>
-        </footer>
-    </div>
 
-    <script src="nlweb.js"></script>
+
+        <div id="work-content" class="tab-content flex flex-col flex-grow w-full">
+
+            <section id="dynamic-content-display" class="mb-10 card-dark p-5 md:p-6" style="display: none;">
+
+                <h3 id="dynamic-content-title" class="text-white font-bold text-xl mb-3"></h3>
+
+                <p id="dynamic-content-description" class="text-gray-300 text-sm mb-4"></p>
+
+                <div class="flex justify-between items-center mt-auto">
+
+                    <span id="dynamic-content-subinfo" class="text-xs text-gray-400 font-semibold"></span>
+
+                    <a id="dynamic-content-learn-more" href="#" class="text-blue-400 hover:text-blue-300 transition-colors text-sm" title="Learn More" target="_blank" style="display: none;">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                        </svg>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+
+            <section class="mb-10 px-4 w-full">
+
+                <div class="card-dark p-5 md:p-6">
+
+                    <h3 class="text-base font-bold text-white mb-3">Gayrimenkul Profesyonelleri İçin Temel Kaynaklar</h3>
+
+                    <div id="query-chips-container" class="grid grid-cols-3 gap-2">
+
+                        <div class="query-chip">
+
+                            <span>Pazar Analizi Raporu Oluştur</span>
+
+                            <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                        <div class="query-chip">
+
+                            <span>Emlak Değerleme Yöntemleri</span>
+
+                            <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                            </button>
+
+                        </div>
+
+                        <div class="query-chip">
+
+                            <span>Kira Sözleşmesi Taslağı</span>
+
+                            <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Tapu İşlemleri Rehberi</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Dijital Pazarlama Stratejileri</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Gayrimenkul Geliştirme</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Emlak Vergisi Bilgilendirmesi</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Gayrimenkul Yatırım Analizi</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Sürdürülebilir Emlak Trendleri</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Akıllı Ev Teknolojileri</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Gayrimenkul Eğitimleri</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                            <div class="query-chip">
+
+                                <span>Realestate.uWeb4</span>
+
+                                <button class="btn-primary ml-1 rounded-full engage-ai-btn">
+
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <section class="mb-10 px-4 flex-grow flex flex-col w-full">
+
+                    <div class="card-dark p-5 md:p-6">
+
+                        <div class="flex items-center mb-4 border-b border-gray-700 pb-3 flex-shrink-0">
+
+                            <div class="bg-blue-600 rounded-full w-10 h-10 flex items-center justify-center mr-3 shadow-lg animate-bounce-slow">
+
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="text-white font-bold text-base">Realestate.Copilot ✨</h3>
+
+                                <p class="text-blue-300 text-xs">Your dedicated AI real estate assistant. Always on, always optimizing.</p>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="flex-grow overflow-y-auto space-y-3 p-2 pr-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800" id="chat-messages">
+
+                            <div class="ai-bubble max-w-[75%] p-3 text-sm">
+
+                                <p>Hello! I'm your Realestate.Copilot. How can I assist you with your property and real estate inquiries today? I can help with market analysis, investment strategies, property management, and more.</p>
+
+                            </div>
+
+
+
+                            <div class="user-bubble max-w-[75%] p-3 ml-auto text-sm">
+
+                                <p>What are the current trends in sustainable residential development?</p>
+
+                            </div>
+
+
+
+                            <div class="ai-bubble max-w-[75%] p-3 text-sm">
+
+                                <p>Current trends in sustainable residential development include:</p>
+
+                                <ul class="list-disc pl-5 mt-2 space-y-1 text-sm">
+
+                                    <li>**Net-Zero Energy Homes:** Designing homes that produce as much energy as they consume, often through solar panels and advanced insulation.</li>
+
+                                    <li>**Water Conservation Systems:** Implementing rainwater harvesting, greywater recycling, and efficient fixtures to reduce water usage.</li>
+
+                                    <li>**Use of Eco-Friendly Materials:** Prioritizing recycled, locally sourced, and low-impact building materials.</li>
+
+                                    <li>**Smart Home Technology:** Integrating systems for optimized energy use, lighting, and climate control.</li>
+
+                                    <li>**Biophilic Design:** Incorporating natural elements and green spaces to enhance occupant well-being and connection to nature.</li>
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="flex items-center mt-5 pt-3 border-t border-gray-700 flex-shrink-0">
+
+                            <button class="btn-icon-dark text-base mr-2" title="Voice Input">
+
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM12 15a4 4 0 0 0 4 4v2H8v-2a4 4 0 004-4z"></path>
+
+                                </svg>
+
+                            </button>
+
+                            <input type="text" placeholder="Consult Realestate.Copilot on property trends, investment opportunities, or legal frameworks..."
+
+                                    class="input-dark flex-grow text-base" id="chat-input">
+
+                            <button class="btn-primary text-base ml-2" title="Send Message" id="send-chat-btn">
+
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <section class="mb-10 px-4 w-full">
+
+                    <div class="card-dark p-5 md:p-6">
+
+                        <h3 class="text-white font-bold text-base mb-3">Emlak İlanı Geliştirici ✨</h3>
+
+                        <textarea id="listing-input" class="input-dark w-full h-24 mb-4 p-3 text-sm" placeholder="Emlak ilanınız için anahtar kelimeleri veya kısa bir taslağı girin (örn: 3+1 daire, merkezi konum, geniş balkon)..."></textarea>
+
+                        <button class="btn-primary w-full md:w-auto px-4 py-2 rounded-lg" id="generate-listing-btn" title="Generate Enhanced Listing">
+
+                            İlanı Geliştir ✨
+
+                        </button>
+
+                        <div id="enhanced-listing-output" class="mt-5 p-3 ai-bubble" style="display: none;">
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+
+            <div id="web-content" class="tab-content w-full" style="display: none;">
+
+                <section class="mb-10 px-4 w-full">
+
+                    <div class="card-dark p-5 md:p-6">
+
+                        <h3 class="text-white font-bold text-base mb-3">NLWorld ✨</h3>
+
+                        <div class="mb-4">
+
+                            <select id="domain-select" class="input-dark w-full text-base">
+
+                                <option value="">Select a Domain for Refined Insights</option>
+
+                                <option value="all">All Domains</option>
+
+                                <option value="property-development">Property & Project Development</option>
+
+                                <option value="residential-properties">Residential Properties (Houses, Villas, Complexes)</option>
+
+                                <option value="commercial-properties">Commercial Properties (Offices, Retail, Industrial)</option>
+
+                                <option value="public-properties">Public & Social Properties</option>
+
+                                <option value="luxury-niche-properties">Luxury & Niche Properties</option>
+
+                                <option value="property-valuation">Property Valuation & Investment Models</option>
+
+                                <option value="sustainable-green-buildings">Sustainable & Green Buildings (LEED)</option>
+
+                                <option value="prefabricated-modular-buildings">Prefabricated & Modular Buildings</option>
+
+                                <option value="real-estate-agencies">Real Estate Agencies & Brokerage</option>
+
+                                <option value="property-finance-loans">Property Finance & Loans</option>
+
+                                <option value="rental-management">Rental & Property Management</option>
+
+                                <option value="design-architecture">Design, Architecture & Interior Decoration</option>
+
+                                <option value="marketing-promotion">Marketing & Promotion for Real Estate</option>
+
+                                <option value="logistics-storage">Logistics, Storage & Distribution</option>
+
+                                <option value="human-resources">Human Resources in Real Estate</option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <div class="flex items-center space-x-2 search-box-inner">
+
+                            <button class="btn-icon-dark text-base" title="Voice Search">
+
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM12 15a4 4 0 0 0 4 4v2H8v-2a4 4 0 004-4z"></path>
+
+                                </svg>
+
+                            </button>
+
+                            <input type="text" placeholder="Explore property market trends, investment opportunities, and sustainable building designs..."
+
+                                    class="input-dark flex-grow text-base" id="main-search-input">
+
+                            <button class="btn-primary text-base" title="Search" id="nlworld-search-btn">
+
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                        <div id="nlworld-results-output" class="mt-5 p-3 ai-bubble" style="display: none;">
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <section class="mb-10 px-4 w-full">
+
+                    <div class="card-dark p-5 md:p-6">
+
+                        <h3 class="text-white font-bold text-base mb-3">Web4.AI ✨</h3>
+
+                        <div id="web4-ai-source-display" class="text-gray-400 text-xs mb-3" style="display: none;">
+
+                            Şu anki kaynak: Yok
+
+                        </div>
+
+                        <textarea id="property-description-input" class="input-dark w-full h-24 mb-4 p-3 text-sm" placeholder="Emlak açıklaması için anahtar kelimeleri girin veya NLWorld arama sonuçlarından bir kaynağa tıklayın."></textarea>
+
+                        <button class="btn-primary w-full md:w-auto px-4 py-2 rounded-lg" id="generate-description-btn" title="Generate Description">
+
+                            Açıklama Oluştur ✨
+
+                        </button>
+
+                        <div id="generated-description-output" class="mt-5 p-3 ai-bubble" style="display: none;">
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <section class="mb-10 px-4 text-center w-full">
+
+                    <h2 class="text-xl font-extrabold text-white mb-3">Pioneering Real Estate & Property Solutions for Elite Professionals</h2>
+
+                    <p class="text-base text-blue-200 max-w-4xl mx-auto mb-8 opacity-90">
+
+                        Discover transformative services and cutting-edge products from global leaders and innovators in the real estate sector. Click icons to explore their impactful contributions and elevate your strategic capabilities.
+
+                    </p>
+
+
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                        <div class="card-dark p-6 cursor-pointer text-left flex flex-col">
+
+                            <div class="flex items-center justify-center mx-auto mb-4">
+
+                                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                                    <path d="M12 18v-6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h3a3 3 0 0 0 3-3zM21 18v-6a3 3 0 0 0-3-3h-3a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h3a3 3 0 0 0 3-3zM9 3l3 3m0 0l3-3m-3 3v6"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <h3 class="text-white font-bold text-base mb-1">AI.Tools</h3>
+
+                            <p class="text-gray-300 text-sm mb-4 flex-grow">Gayrimenkulde pazar analizi, değerleme ve müşteri ilişkileri için akıllı algoritmalar.</p>
+
+                            <div class="flex justify-between items-center mt-auto">
+
+                                <span class="text-xs text-gray-400 font-semibold">Akıllı Çözümler</span>
+
+                                <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors text-sm" title="Learn More">
+
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="card-dark p-6 cursor-pointer text-left flex flex-col">
+
+                            <div class="flex items-center justify-center mx-auto mb-4">
+
+                                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+
+                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+
+                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <h3 class="text-white font-bold text-base mb-1">Marketplace</h3>
+
+                            <p class="text-gray-300 text-sm mb-4 flex-grow">Küresel alıcılar, satıcılar ve emlak profesyonelleriyle bağlantı kurun.</p>
+
+                            <div class="flex justify-between items-center mt-auto">
+
+                                <span class="text-xs text-gray-400 font-semibold">Küresel Ağ</span>
+
+                                <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors text-sm" title="Learn More">
+
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="card-dark p-6 cursor-pointer text-left flex flex-col">
+
+                            <div class="flex items-center justify-center mx-auto mb-4">
+
+                                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                                    <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zM3 7l9 5m9-5l-9 5m-9 5l9 5m9-5l-9 5"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <h3 class="text-white font-bold text-base mb-1">Digital Twin</h3>
+
+                            <p class="text-gray-300 text-sm mb-4 flex-grow">Mülk tasarımlarını ve inşaat süreçlerini sanal ortamda optimize edin.</p>
+
+                            <div class="flex justify-between items-center mt-auto">
+
+                                <span class="text-xs text-gray-400 font-semibold">Sanal Optimizasyon</span>
+
+                                <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors text-sm" title="Learn More">
+
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="card-dark p-6 cursor-pointer text-left flex flex-col">
+
+                            <div class="flex items-center justify-center mx-auto mb-4">
+
+                                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                                    <path d="M12 22c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7z"></path>
+
+                                    <path d="M12 15h.01M12 12v3M12 9v.01M12 2a10 10 0 0 0-7 17.32M12 2a10 10 0 0 1 7 17.32"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <h3 class="text-white font-bold text-base mb-1">IoT</h3>
+
+                            <p class="text-gray-300 text-sm mb-4 flex-grow">Akıllı binalar ve altyapıdan gerçek zamanlı veri akışı ve analizleri.</p>
+
+                            <div class="flex justify-between items-center mt-auto">
+
+                                <span class="text-xs text-gray-400 font-semibold">Bağlantılı İçgörüler</span>
+
+                                <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors text-sm" title="Learn More">
+
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+
+                                    </svg>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+
+
+        <footer class="w-full py-6 px-4 md:px-8 text-center text-gray-400 text-xs bg-transparent relative z-20">
+
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0">
+
+                <div class="flex items-center">
+
+                    <p>&copy; 2025 Realestate.Web4. All rights reserved.</p>
+
+                </div>
+
+                <div class="flex space-x-4">
+
+                    <a href="#" class="hover:text-blue-300 transition-colors">Privacy Policy</a>
+
+                    <a href="#" class="hover:text-blue-300 transition-colors">Terms of Service</a>
+
+                    <a href="#" class="hover:text-blue-300 transition-colors">Contact Us</a>
+
+                </div>
+
+                <div class="flex space-x-3 text-base">
+
+                    <a href="#" class="hover:text-blue-300 transition-colors" aria-label="Twitter">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7zM12 15h.01M12 12v3M12 9v.01M12 2a10 10 0 0 0-7 17.32M12 2a10 10 0 0 1 7 17.32"></path>
+
+                        </svg>
+
+                    </a>
+
+                    <a href="#" class="hover:text-blue-300 transition-colors" aria-label="LinkedIn">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7zM12 15h.01M12 12v3M12 9v.01M12 2a10 10 0 0 0-7 17.32M12 2a10 10 0 0 1 7 17.32"></path>
+
+                        </svg>
+
+                    </a>
+
+                    <a href="#" class="hover:text-blue-300 transition-colors" aria-label="GitHub">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7zM12 15h.01M12 12v3M12 9v.01M12 2a10 10 0 0 0-7 17.32M12 2a10 10 0 0 1 7 17.32"></path>
+
+                        </svg>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="mt-4 text-center text-gray-500 font-semibold">
+
+                <div class="icon-section">
+
+                    <div class="icon-item">
+
+                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                            <path d="M12 18v-6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h3a3 3 0 0 0 3-3zM21 18v-6a3 3 0 0 0-3-3h-3a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h3a3 3 0 0 0 3-3zM9 3l3 3m0 0l3-3m-3 3v6"></path>
+
+                        </svg>
+
+                    </div>
+
+                    <div class="icon-item">
+
+                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+
+                        </svg>
+
+                    </div>
+
+                    <div class="icon-item">
+
+                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zM3 7l9 5m9-5l-9 5m-9 5l9 5m9-5l-9 5"></path>
+
+                        </svg>
+
+                    </div>
+
+                    <div class="icon-item">
+
+                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                            <path d="M12 22c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7z"></path>
+
+                            <path d="M12 15h.01M12 12v3M12 9v.01M12 2a10 10 0 0 0-7 17.32M12 2a10 10 0 0 1 7 17.32"></path>
+
+                        </svg>
+
+                    </div>
+
+                    <div class="icon-item">
+
+                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="rgba(64, 224, 208, 0.1)">
+
+                            <circle cx="11" cy="11" r="8"></circle>
+
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+                        </svg>
+
+                    </div>
+
+                </div>
+
+                <p class="mt-4 text-xs text-gray-400 font-light">Powered by Web4.0 OS Platform</p>
+
+            </div>
+
+        </footer>
+
+
+
+        <script>
+
+            document.addEventListener('DOMContentLoaded', () => {
+
+                const workTab = document.getElementById('work-tab');
+
+                const webTab = document.getElementById('web-tab');
+
+                const workContent = document.getElementById('work-content');
+
+                const webContent = document.getElementById('web-content');
+
+
+
+                const domainSelect = document.getElementById('domain-select');
+
+                const mainSearchInput = document.getElementById('main-search-input');
+
+                const nlworldSearchBtn = document.getElementById('nlworld-search-btn');
+
+                const nlworldResultsOutput = document.getElementById('nlworld-results-output');
+
+
+
+                const chatInput = document.getElementById('chat-input');
+
+                const sendChatBtn = document.getElementById('send-chat-btn');
+
+                const chatMessages = document.getElementById('chat-messages');
+
+                const engageAiButtons = document.querySelectorAll('.engage-ai-btn'); // Now targets buttons inside query chips
+
+                const propertyDescriptionInput = document.getElementById('property-description-input');
+
+                const generateDescriptionBtn = document.getElementById('generate-description-btn');
+
+                const generatedDescriptionOutput = document.getElementById('generated-description-output');
+
+
+
+                // Yeni eklenen emlak ilanı geliştirici elementleri
+
+                const listingInput = document.getElementById('listing-input');
+
+                const generateListingBtn = document.getElementById('generate-listing-btn');
+
+                const enhancedListingOutput = document.getElementById('enhanced-listing-output');
+
+
+
+                // Function to add a message to the chat
+
+                function addMessage(text, sender) {
+
+                    const messageDiv = document.createElement('div');
+
+                    messageDiv.classList.add('max-w-[75%]', 'p-3', 'text-sm');
+
+                    if (sender === 'user') {
+
+                        messageDiv.classList.add('user-bubble', 'ml-auto');
+
+                    } else {
+
+                        messageDiv.classList.add('ai-bubble');
+
+                    }
+
+                    messageDiv.innerHTML = `<p>${text}</p>`;
+
+                    chatMessages.appendChild(messageDiv);
+
+                    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+
+                }
+
+
+
+                // Function to call Gemini API for smart response
+
+                async function getGeminiSmartResponse(query, sourceContent = null) {
+    let prompt;
+
+    if (sourceContent) {
+        prompt = `Emlak ve gayrimenkul sektörüyle ilgili bir uzmansın. Yanıtını 3-5 madde halinde, anahtar noktaları vurgulayarak maddeler halinde (bullet points) açıkla. Emlak profesyonellerine yönelik kurumsal bir dil kullan.
+
+Kaynak İçerik:
+
+${sourceContent}
+
+Kullanıcı Sorgusu:
+
+${query}`;
+    } else {
+        prompt = `Emlak ve gayrimenkul sektörüyle ilgili bir uzmansın. "${query}" araması için kısa, öz ve anlamlı bir özet sun. Yanıtını 3-5 madde halinde, anahtar noktaları vurgulayarak maddeler halinde (bullet points) açıkla. Emlak profesyonellerine yönelik kurumsal bir dil kullan.`;
+    }
+
+    let payload = {
+        messages: [
+            { role: "system", content: prompt },
+            { role: "user", content: query }
+        ],
+        max_tokens: 512,
+        temperature: 0.6,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0
+    };
+
+    const apiKey = "11x9IG7HZkyphyxj7I41UPWOshDNpWJAvUdiuUeVoxnMy6CPsY5cJQQJ99BDACYeBjFXJ3w3AAAAACOGQMYE";
+    const apiUrl = "https://ai-gptai749384661431.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2025-01-01-preview";
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'api-key': apiKey
+            },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.choices && result.choices.length > 0 && result.choices[0].message && result.choices[0].message.content) {
+            return result.choices[0].message.content;
+        }
+        return "Akıllı yanıt alınamadı.";
+    } catch (error) {
+        console.error("GPT-4.1 mini API çağrısı hatası:", error);
+        return "Akıllı yanıt alınırken bir hata oluştu.";
+    }
+}
+
+
+                // Function to call Gemini API for enhanced listing generation
+
+                async function generateEnhancedListing(inputKeywords) {
+    const prompt = `Emlak ve gayrimenkul sektöründe bir uzmansın. Aşağıdaki anahtar kelimeleri veya kısa taslağı kullanarak profesyonel, detaylı ve çekici bir emlak ilanı açıklaması oluştur. İlan, potansiyel alıcıları cezbetmeli ve tüm önemli özellikleri vurgulamalıdır. En az 150 kelime uzunluğunda olmalı ve emlak sektörüne uygun terimler içermelidir.
+
+Anahtar Kelimeler/Taslak:
+
+${inputKeywords}`;
+
+    let payload = {
+        messages: [
+            { role: "system", content: prompt },
+            { role: "user", content: inputKeywords }
+        ],
+        max_tokens: 512,
+        temperature: 0.7,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0
+    };
+
+    const apiKey = "11x9IG7HZkyphyxj7I41UPWOshDNpWJAvUdiuUeVoxnMy6CPsY5cJQQJ99BDACYeBjFXJ3w3AAAAACOGQMYE";
+    const apiUrl = "https://ai-gptai749384661431.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2025-01-01-preview";
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'api-key': apiKey
+            },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.choices && result.choices.length > 0 && result.choices[0].message && result.choices[0].message.content) {
+            return result.choices[0].message.content;
+        }
+        return "Gelişmiş ilan oluşturulamadı.";
+    } catch (error) {
+        console.error("GPT-4.1 mini generate listing API hatası:", error);
+        return "İlan geliştirilirken bir hata oluştu.";
+    }
+}
+
+
+                // Function to call Google Search API (mocked)
+
+                async function callGoogleSearch(query) {
+    const apiKey = "AIzaSyCq9FqMZsZWKUVUno6UbUlU-ebLielup7A";
+    const cx = "151a3889deeac47b9";
+    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${apiKey}&cx=${cx}&num=10`;
+    try {
+        const response = await fetch(url);
+        const result = await response.json();
+        if (result.items && result.items.length > 0) {
+            return {
+                query: query,
+                results: result.items.map(item => ({
+                    title: item.title,
+                    snippet: item.snippet,
+                    url: item.link
+                }))
+            };
+        }
+        return { query: query, results: [] };
+    } catch (error) {
+        console.error("Google Search API hatası:", error);
+        return { query: query, results: [] };
+    }
+}
+
+                // Global variable to store the currently loaded source content for Web4.AI
+
+                let currentWeb4AiSourceContent = null;
+
+                const web4AiSourceDisplay = document.getElementById('web4-ai-source-display');
+
+                const propertyDescriptionInputEl = document.getElementById('property-description-input');
+
+                const propertyDescriptionPlaceholder = propertyDescriptionInputEl.placeholder; // Orijinal placeholder'ı sakla
+
+
+
+                // Simulate AI response for chat (uses getGeminiSmartResponse for actual AI logic)
+
+                async function simulateAiResponse(query) {
+
+                    addMessage(`AI Copilot düşünüyor...`, 'ai'); // Bir düşünme mesajı ekle
+
+
+
+                    try {
+
+                        const responseText = await getGeminiSmartResponse(query, currentWeb4AiSourceContent);
+
+
+
+                        // Düşünme mesajını kaldır
+
+                        if (chatMessages.lastChild && chatMessages.lastChild.textContent.includes('düşünüyor')) {
+
+                            chatMessages.removeChild(chatMessages.lastChild);
+
+                        }
+
+                        addMessage(responseText, 'ai');
+
+                    } catch (error) {
+
+                        console.error("simulateAiResponse hatası:", error);
+
+                        if (chatMessages.lastChild && chatMessages.lastChild.textContent.includes('düşünüyor')) {
+
+                            chatMessages.removeChild(chatMessages.lastChild);
+
+                        }
+
+                        addMessage("Akıllı yanıt alınırken bir hata oluştu.", 'ai');
+
+                    }
+
+                }
+
+
+
+
+
+                // Event listener for sending chat messages (Realestate.AI.Copilot)
+
+                sendChatBtn.addEventListener('click', () => {
+
+                    const userQuery = chatInput.value.trim();
+
+                    if (userQuery) {
+
+                        addMessage(userQuery, 'user');
+
+                        simulateAiResponse(userQuery); // Chat için Gemini kullanır
+
+                        chatInput.value = ''; // Girişi temizle
+
+                    }
+
+                });
+
+
+
+                // Allow sending message with Enter key for chat
+
+                chatInput.addEventListener('keypress', (event) => {
+
+                    if (event.key === 'Enter') {
+
+                        sendChatBtn.click();
+
+                    }
+
+                });
+
+
+
+                // Event listeners for "Engage AI" buttons (for query chips)
+
+                document.querySelectorAll('.query-chip').forEach(chip => { // Event listener now on the chip itself
+
+                    chip.addEventListener('click', () => {
+
+                        const queryText = chip.querySelector('span').textContent.trim(); // Get text from span inside chip
+
+                        // Doğrudan Copilot'a göndermek için chatInput'a yazıp sendChatBtn'i tetikliyoruz
+
+                        chatInput.value = queryText;
+
+                        sendChatBtn.click();
+
+                    });
+
+                });
+
+
+
+                // Property Description Generator Logic (now also handles source-based Q&A)
+
+                generateDescriptionBtn.addEventListener('click', async () => {
+
+                    const query = propertyDescriptionInputEl.value.trim();
+
+                    if (query) {
+
+                        generatedDescriptionOutput.style.display = 'block';
+
+                        generatedDescriptionOutput.innerHTML = '<p>Yanıt oluşturuluyor...</p>'; // Yükleniyor mesajı
+
+
+
+                        let responseText;
+
+                        if (currentWeb4AiSourceContent) {
+
+                            // Eğer bir kaynak yüklüyse, o kaynak hakkında soru sor
+
+                            responseText = await getGeminiSmartResponse(query, currentWeb4AiSourceContent);
+
+                        } else {
+
+                            // Kaynak yüklü değilse, emlak açıklaması oluştur
+
+                            const prompt = `Emlak ilanı için çekici ve detaylı bir açıklama oluştur. Anahtar kelimeler: "${query}". Emlak açıklaması profesyonel, akıcı ve potansiyel alıcıları cezbedici olmalı.`;
+
+                            let chatHistory = [];
+
+                            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+                            const payload = { contents: chatHistory };
+
+                            const apiKey = ""; // Leave as-is, Canvas will provide in runtime
+
+                            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+
+
+                            try {
+
+                                const response = await fetch(apiUrl, {
+
+                                    method: 'POST',
+
+                                    headers: { 'Content-Type': 'application/json' },
+
+                                    body: JSON.stringify(payload)
+
+                                });
+
+                                const result = await response.json();
+
+                                if (result.candidates && result.candidates.length > 0 &&
+
+                                    result.candidates[0].content && result.candidates[0].content.parts &&
+
+                                    result.candidates[0].content.parts.length > 0) {
+
+                                    responseText = result.candidates[0].content.parts[0].text;
+
+                                } else {
+
+                                    responseText = 'Üzgünüm, açıklama oluşturulurken bir sorun oluştu. Lütfen tekrar deneyin.';
+
+                                }
+
+                            } catch (error) {
+
+                                console.error("Gemini API çağrısı hatası:", error);
+
+                                responseText = 'API çağrısı sırasında bir hata oluştu. Lütfen konsolu kontrol edin.';
+
+                            }
+
+                        }
+
+                        generatedDescriptionOutput.innerHTML = `<p>${responseText}</p>`;
+
+                    } else {
+
+                        generatedDescriptionOutput.style.display = 'none';
+
+                    }
+
+                });
+
+
+
+                // Event listener for the new "Generate Enhanced Listing" button
+
+                generateListingBtn.addEventListener('click', async () => {
+
+                    const inputKeywords = listingInput.value.trim();
+
+                    if (inputKeywords) {
+
+                        enhancedListingOutput.style.display = 'block';
+
+                        enhancedListingOutput.innerHTML = '<p>İlan geliştiriliyor...</p>'; // Loading message
+
+
+
+                        const generatedText = await generateEnhancedListing(inputKeywords);
+
+                        enhancedListingOutput.innerHTML = `<p>${generatedText}</p>`;
+
+                    } else {
+
+                        enhancedListingOutput.style.display = 'none';
+
+                    }
+
+                });
+
+
+
+
+
+                // NLWorld Search Functionality - Integrated with Google Search and Gemini
+
+                domainSelect.addEventListener('change', () => {
+
+                    const selectedText = domainSelect.options[domainSelect.selectedIndex].textContent;
+
+                    if (selectedText && selectedText !== "Select a Domain for Refined Insights") {
+
+                        mainSearchInput.value = selectedText;
+
+                    } else {
+
+                        mainSearchInput.value = '';
+
+                    }
+
+                });
+
+
+
+                nlworldSearchBtn.addEventListener('click', async () => {
+
+                    const query = mainSearchInput.value.trim();
+
+                    if (query) {
+
+                        nlworldResultsOutput.style.display = 'block';
+
+                        nlworldResultsOutput.innerHTML = '<p>Arama yapılıyor ve akıllı yanıt oluşturuluyor...</p>'; // Yükleniyor mesajı
+
+
+
+                        try {
+
+                            // Google Arama (mock)
+
+                            const googleResults = await callGoogleSearch(query);
+
+
+
+                            // Gemini'den akıllı özet
+
+                            const geminiSmartResponse = await getGeminiSmartResponse(query);
+
+
+
+                            let resultsHtml = `<p class="text-base font-bold mb-2">Akıllı Yanıt:</p><div class="ai-bubble p-3 mb-4">${geminiSmartResponse}</div>`;
+
+
+
+                            if (googleResults && googleResults.results.length > 0) {
+
+                                resultsHtml += `<p class="text-base font-bold mb-2">Web Arama Sonuçları: "${googleResults.query}"</p>`;
+
+                                googleResults.results.forEach(result => {
+
+                                    // Make NLWorld search results clickable to load into Web4.AI
+
+                                    resultsHtml += `
+
+                                        <div class="nlworld-result-item mb-3 p-2 border-b border-gray-700 last:border-b-0 cursor-pointer hover:bg-gray-800" data-url="${result.url}" data-content="${result.mockContent || result.snippet}">
+
+                                            <a href="${result.url}" target="_blank" class="text-blue-400 hover:underline text-sm font-semibold block">${result.title}</a>
+
+                                            <p class="text-gray-300 text-xs mt-1">${result.snippet}</p>
+
+                                            <span class="text-gray-500 text-xs">${result.url}</span>
+
+                                        </div>
+
+                                    `;
+
+                                });
+
+                            } else {
+
+                                resultsHtml += '<p class="text-base font-bold mb-2">Web Arama Sonuçları bulunamadı.</p>';
+
+                            }
+
+                            nlworldResultsOutput.innerHTML = resultsHtml;
+
+
+
+                            // Add event listeners to newly created NLWorld result items
+
+                            document.querySelectorAll('.nlworld-result-item').forEach(item => {
+
+                                item.addEventListener('click', function(event) {
+
+                                    // Prevent navigating to the URL if the link itself is clicked
+
+                                    if (event.target.tagName === 'A') {
+
+                                        return;
+
+                                    }
+
+                                    const url = this.getAttribute('data-url');
+
+                                    const content = this.getAttribute('data-content');
+
+                                    currentWeb4AiSourceContent = content; // Yüklenecek içeriği ayarla
+
+                                    web4AiSourceDisplay.innerHTML = `Şu anki kaynak: <a href="${url}" target="_blank" class="text-blue-400 hover:underline">${url}</a>`;
+
+                                    web4AiSourceDisplay.style.display = 'block'; // Kaynak gösterimini görünür yap
+
+                                    propertyDescriptionInputEl.placeholder = `Yüklü kaynak hakkında soru sorun: "${url}"`; // Placeholder'ı güncelledik
+
+                                    // Scroll to Web4.AI section
+
+                                    document.getElementById('web-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                                    // Switch to Web tab
+
+                                    webTab.click();
+
+                                });
+
+                            });
+
+
+
+                        } catch (error) {
+
+                            console.error("NLWorld arama hatası:", error);
+
+                            nlworldResultsOutput.innerHTML = '<p>Arama veya akıllı yanıt alınırken bir hata oluştu. Lütfen konsolu kontrol edin.</p>';
+
+                        }
+
+                    } else {
+
+                        nlworldResultsOutput.style.display = 'none';
+
+                    }
+
+                });
+
+
+
+                // Ana arama çubuğunda Enter tuşuyla arama yapmayı sağlar
+
+                mainSearchInput.addEventListener('keypress', (event) => {
+
+                    if (event.key === 'Enter') {
+
+                        nlworldSearchBtn.click();
+
+                    }
+
+                });
+
+
+
+                // Tab switching functionality
+
+                const updateTabStyles = (activeTab, inactiveTab) => {
+
+                    activeTab.classList.remove('bg-transparent', 'text-gray-400', 'hover:bg-gray-700', 'hover:text-white');
+
+                    activeTab.classList.add('bg-blue-700', 'text-white', 'shadow-md', 'hover:bg-blue-600');
+
+
+
+                    inactiveTab.classList.remove('bg-blue-700', 'text-white', 'shadow-md', 'hover:bg-blue-600');
+
+                    inactiveTab.classList.add('bg-transparent', 'text-gray-400', 'hover:bg-gray-700', 'hover:text-white');
+
+                };
+
+
+
+                workTab.addEventListener('click', () => {
+
+                    updateTabStyles(workTab, webTab);
+
+                    workContent.style.display = 'block';
+
+                    webContent.style.display = 'none';
+
+                    console.log('Work tab clicked');
+
+                });
+
+
+
+                webTab.addEventListener('click', () => {
+
+                    updateTabStyles(webTab, workTab);
+
+                    workContent.style.display = 'none';
+
+                    webContent.style.display = 'block';
+
+                    console.log('Web tab clicked');
+
+                });
+
+
+
+                // Set initial tab state
+
+                workTab.click(); // Activate Work tab by default
+
+            });
+
+        </script>
+
+    </body>
+
 </html>
