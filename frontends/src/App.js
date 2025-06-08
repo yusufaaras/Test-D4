@@ -24,7 +24,7 @@ function App() {
 
   // Anahtar kelimeleri backend ile al
   const extractKeywords = async (text) => {
-    const res = await fetch("http://localhost:5000/api/nlweb-keywords", {
+    const res = await fetch("/api/nlweb-keywords", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
@@ -82,7 +82,7 @@ function App() {
 
     try {
       // Scrapeless'ten veriyi eksiksiz al
-      const res = await fetch("http://localhost:5000/api/scrape", {
+      const res = await fetch("/api/scrape", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
