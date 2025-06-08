@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./ScrapeDetails.css";
 
-// Google Gemini API anahtarı ve endpointi
 const GEMINI_API_KEY = "AIzaSyC6a6LRfX_nAPTFmyoDEHj6uW8pl-J8n_c";
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -36,7 +35,8 @@ export default function ScrapeDetails({ scrapelessData, selectedLink }) {
     setInput("");
     setStreamedAnswer("");
     setPending(false);
-  }, [scrapelessData, selectedLink]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrapelessData, selectedLink, aiReady]); // aiReady eklendi (eslint hatası çözümü)
 
   // Gemini prompt builder
   const buildGeminiPrompt = (history, userMessage) => {
@@ -78,15 +78,21 @@ AI:
       const d = await res.json();
       const fullText = d?.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
 
-      let idx = 0;
-      let words = fullText.split(/(\s+)/);
-      setStreamedAnswer("");
-      for (; idx < words.length; idx++) {
-        setStreamedAnswer(prev => prev + words[idx]);
-        let wait = /[.?!]\s*$/.test(words[idx]) ? 120 : 35;
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise(r => setTimeout(r, wait));
-      }
+      // no-loop-func hatası için forEach ve closure kullan!
+      let progressiveText = "";
+      const words = fullText.split(/(\s+)/);
+      // forEach yerine klasik for ile indexi closure'a al
+      const streamWords = async () => {
+        for (let idx = 0; idx < words.length; idx++) {
+          progressiveText += words[idx];
+          setStreamedAnswer(progressiveText);
+          // Nokta, soru işareti, ünlemde biraz daha beklet
+          const wait = /[.?!]\s*$/.test(words[idx]) ? 120 : 35;
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise(r => setTimeout(r, wait));
+        }
+      };
+      await streamWords();
       setMessages(m => [
         ...m,
         { role: "ai", text: fullText }
