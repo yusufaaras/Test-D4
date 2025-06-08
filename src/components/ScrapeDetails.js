@@ -14,7 +14,7 @@ export default function ScrapeDetails({ scrapelessData, selectedLink }) {
   const chatEndRef = useRef(null);
   const [aiReady, setAiReady] = useState(false);
 
-  // AI alanı açıldığında ve scrapelessData değiştiğinde en alta scroll
+  // En alta scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamedAnswer]);
@@ -35,7 +35,8 @@ export default function ScrapeDetails({ scrapelessData, selectedLink }) {
     setInput("");
     setStreamedAnswer("");
     setPending(false);
-  }, [scrapelessData, selectedLink]);
+    // aiReady eklendi!
+  }, [scrapelessData, selectedLink, aiReady]);
 
   const buildGeminiPrompt = (history, userMessage) => {
     let histText = history
@@ -75,15 +76,17 @@ AI:
       const d = await res.json();
       const fullText = d?.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
 
-      let idx = 0;
-      let words = fullText.split(/(\s+)/);
-      setStreamedAnswer("");
-      for (; idx < words.length; idx++) {
-        setStreamedAnswer(prev => prev + words[idx]);
-        let wait = /[.?!]\s*$/.test(words[idx]) ? 120 : 35;
+      // no-loop-func hatasını çözmek için klasik for döngüsü ve closure kullan!
+      let progressiveText = "";
+      const words = fullText.split(/(\s+)/);
+      for (let i = 0; i < words.length; i++) {
+        progressiveText += words[i];
+        setStreamedAnswer(progressiveText);
+        const wait = /[.?!]\s*$/.test(words[i]) ? 120 : 35;
         // eslint-disable-next-line no-await-in-loop
         await new Promise(r => setTimeout(r, wait));
       }
+
       setMessages(m => [
         ...m,
         { role: "ai", text: fullText }
