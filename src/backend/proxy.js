@@ -1,9 +1,11 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const fetch = require("node-fetch");
-const { ScrapingCrawl } = require("@scrapeless-ai/sdk");
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import fetch from "node-fetch";
+import { ScrapingCrawl } from "@scrapeless-ai/sdk";
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 
 // NLWEB anahtar kelime çıkarma
@@ -52,5 +54,7 @@ app.post("/api/scrape", async (req, res) => {
   }
 });
 
-// Vercel için:
-module.exports = app;
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Backend proxy running on http://localhost:${PORT}`);
+});
