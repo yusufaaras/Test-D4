@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./ScrapeDetails.css";
 
+// Google Gemini API anahtarı ve endpointi
 const GEMINI_API_KEY = "AIzaSyC6a6LRfX_nAPTFmyoDEHj6uW8pl-J8n_c";
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -14,12 +15,12 @@ export default function ScrapeDetails({ scrapelessData, selectedLink }) {
   const chatEndRef = useRef(null);
   const [aiReady, setAiReady] = useState(false);
 
-  // AI alanı açıldığında ve scrapelessData değiştiğinde en alta scroll
+  // Chat veya cevap değiştiğinde en alta scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamedAnswer]);
 
-  // Scrapeless veri gelirse ilk AI mesajı otomatik gönder
+  // scrapelessData değişirse ilk AI mesajı otomatik gönder
   useEffect(() => {
     if (scrapelessData && !aiReady) {
       setMessages([
@@ -37,6 +38,7 @@ export default function ScrapeDetails({ scrapelessData, selectedLink }) {
     setPending(false);
   }, [scrapelessData, selectedLink]);
 
+  // Gemini prompt builder
   const buildGeminiPrompt = (history, userMessage) => {
     let histText = history
       .map(m => (m.role === "user" ? `Kullanıcı: ${m.text}` : `AI: ${m.text}`))
@@ -55,6 +57,7 @@ AI:
 `;
   };
 
+  // Gemini'ye istek at, streaming gibi kelime kelime yazdır
   async function askGeminiStreaming(newHistory, userMessage) {
     setPending(true);
     setStreamedAnswer("");

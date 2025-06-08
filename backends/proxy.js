@@ -54,6 +54,5 @@ app.post("/api/scrape", async (req, res) => {
   }
 });
 
-// !!! DİKKAT: app.listen YOK !!!
-// Sadece aşağıdakini bırak:
+// Vercel için: Sadece module.exports, app.listen yok!
 module.exports = app;
