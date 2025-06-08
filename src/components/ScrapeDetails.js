@@ -14,12 +14,12 @@ export default function ScrapeDetails({ scrapelessData, selectedLink }) {
   const chatEndRef = useRef(null);
   const [aiReady, setAiReady] = useState(false);
 
-  // Chat veya cevap değiştiğinde en alta scroll
+  // AI alanı açıldığında ve scrapelessData değiştiğinde en alta scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamedAnswer]);
 
-  // scrapelessData değişirse ilk AI mesajı otomatik gönder
+  // Scrapeless veri gelirse ilk AI mesajı otomatik gönder
   useEffect(() => {
     if (scrapelessData && !aiReady) {
       setMessages([
@@ -35,10 +35,8 @@ export default function ScrapeDetails({ scrapelessData, selectedLink }) {
     setInput("");
     setStreamedAnswer("");
     setPending(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrapelessData, selectedLink, aiReady]); // aiReady eklendi (eslint hatası çözümü)
+  }, [scrapelessData, selectedLink]);
 
-  // Gemini prompt builder
   const buildGeminiPrompt = (history, userMessage) => {
     let histText = history
       .map(m => (m.role === "user" ? `Kullanıcı: ${m.text}` : `AI: ${m.text}`))
@@ -57,7 +55,6 @@ AI:
 `;
   };
 
-  // Gemini'ye istek at, streaming gibi kelime kelime yazdır
   async function askGeminiStreaming(newHistory, userMessage) {
     setPending(true);
     setStreamedAnswer("");
@@ -78,21 +75,15 @@ AI:
       const d = await res.json();
       const fullText = d?.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
 
-      // no-loop-func hatası için forEach ve closure kullan!
-      let progressiveText = "";
-      const words = fullText.split(/(\s+)/);
-      // forEach yerine klasik for ile indexi closure'a al
-      const streamWords = async () => {
-        for (let idx = 0; idx < words.length; idx++) {
-          progressiveText += words[idx];
-          setStreamedAnswer(progressiveText);
-          // Nokta, soru işareti, ünlemde biraz daha beklet
-          const wait = /[.?!]\s*$/.test(words[idx]) ? 120 : 35;
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise(r => setTimeout(r, wait));
-        }
-      };
-      await streamWords();
+      let idx = 0;
+      let words = fullText.split(/(\s+)/);
+      setStreamedAnswer("");
+      for (; idx < words.length; idx++) {
+        setStreamedAnswer(prev => prev + words[idx]);
+        let wait = /[.?!]\s*$/.test(words[idx]) ? 120 : 35;
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(r => setTimeout(r, wait));
+      }
       setMessages(m => [
         ...m,
         { role: "ai", text: fullText }

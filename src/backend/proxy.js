@@ -1,11 +1,9 @@
 const express = require("express");
-const cors = require("cors");
 const bodyParser = require("body-parser");
 const fetch = require("node-fetch");
 const { ScrapingCrawl } = require("@scrapeless-ai/sdk");
 
 const app = express();
-app.use(cors());
 app.use(bodyParser.json());
 
 // NLWEB anahtar kelime çıkarma
@@ -54,5 +52,5 @@ app.post("/api/scrape", async (req, res) => {
   }
 });
 
-// Vercel için: Sadece module.exports, app.listen yok!
+// Vercel için:
 module.exports = app;
