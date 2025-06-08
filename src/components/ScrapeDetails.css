@@ -1,0 +1,103 @@
+.ai-chat-panel {
+    background: #f6faff;
+    border-radius: 10px;
+    box-shadow: 0 2px 16px #e1e7f2;
+    padding: 24px 18px 12px 18px;
+    margin: 30px 0 0 0;
+    min-height: 300px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .ai-chat-link-indicator {
+    background: #e3f2fd;
+    border-radius: 7px;
+    padding: 10px 14px 8px 14px;
+    margin-bottom: 16px;
+    font-size: 1.01em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-chat-link-label {
+    font-weight: 500;
+    color: #1565c0;
+  }
+  .ai-chat-link-desc {
+    color: #232;
+    font-size: 0.98em;
+  }
+  .ai-chat-link-indicator a {
+    color: #1976d2;
+    text-decoration: underline;
+    word-break: break-all;
+    margin: 0 2px;
+    font-weight: 500;
+  }
+  .ai-chat-history {
+    flex: 1;
+    min-height: 180px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 14px;
+  }
+  .ai-chat-msg {
+    margin: 5px 0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    max-width: 90%;
+    word-break: break-word;
+  }
+  .ai-chat-msg.user {
+    background: #e5f0ff;
+    text-align: right;
+    margin-left: auto;
+  }
+  .ai-chat-msg.ai {
+    background: #eefdea;
+    color: #223;
+    text-align: left;
+    margin-right: auto;
+  }
+  .ai-chat-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .ai-chat-input {
+    flex: 1;
+    font-size: 1.09em;
+    border-radius: 7px;
+    border: 1px solid #cde;
+    padding: 9px 10px;
+    resize: none;
+    background: #fff;
+  }
+  .ai-chat-send-btn {
+    background: #4caf50;
+    color: #fff;
+    font-weight: bold;
+    padding: 9px 20px;
+    border: none;
+    border-radius: 7px;
+    font-size: 1.07em;
+    cursor: pointer;
+    margin-bottom: 2px;
+    transition: background .17s;
+  }
+  .ai-chat-send-btn:disabled {
+    background: #b2dfdb;
+    color: #555;
+    cursor: not-allowed;
+  }
+  .typing-cursor {
+    animation: blink 0.85s steps(1) infinite;
+  }
+  @keyframes blink {
+    0% { opacity: 1; }
+    60% { opacity: 0; }
+    100% { opacity: 1; }
+  }
